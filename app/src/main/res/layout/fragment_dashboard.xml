@@ -28,7 +28,7 @@
         android:layout_marginTop="221dp"
         android:layout_marginEnd="144dp"
         android:layout_marginBottom="90dp"
-        android:text="Thiago2"
+        android:text="gilbertocezar"
         android:textSize="34sp"
         app:layout_constraintBottom_toTopOf="@+id/text_dashboard"
         app:layout_constraintEnd_toEndOf="parent"
