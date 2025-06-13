@@ -7,7 +7,7 @@
         android:title="Início" />
 
     <item
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_contact"
         android:icon="@android:drawable/ic_menu_call"
         android:title="Contatos" />
 

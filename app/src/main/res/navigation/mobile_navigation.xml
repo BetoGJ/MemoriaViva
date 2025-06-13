@@ -12,10 +12,10 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.example.memoriaviva2.ui.dashboard.DashboardFragment"
+        android:id="@+id/navigation_contact"
+        android:name="com.example.memoriaviva2.ui.contacts.ContactFragment"
         android:label="Emergência"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_contact" />
 
     <fragment
         android:id="@+id/navigation_notifications"
