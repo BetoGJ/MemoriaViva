@@ -25,7 +25,7 @@
 
     <fragment
             android:id="@+id/item_1"
-            android:name="com.example.memoriaviva2.ui.tela1.Tela1Fragment"
+            android:name="com.example.memoriaviva2.ui.TelaUmFragment"
             android:label="1"
             tools:layout="@layout/um" />
     <fragment
