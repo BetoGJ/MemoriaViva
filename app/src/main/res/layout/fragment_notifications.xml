@@ -7,9 +7,11 @@
 
     <EditText
         android:id="@+id/editRemedio"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Nome do remédio" />
+        android:layout_width="363dp"
+        android:layout_height="70dp"
+        android:hint="Nome do remédio"
+        android:layout_marginTop="100dp" />
+
 
     <Button
         android:id="@+id/btnHorario"
@@ -23,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Nenhum horário selecionado"
-        android:layout_marginTop="4dp" />
+        android:layout_marginTop="10dp" />
 
     <Button
         android:id="@+id/btnAgendar"

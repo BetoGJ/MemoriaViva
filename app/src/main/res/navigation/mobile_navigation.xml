@@ -30,7 +30,7 @@
             tools:layout="@layout/um" />
     <fragment
             android:id="@+id/item_2"
-            android:name="com.example.memoriaviva2.ui.tela2.Tela2Fragment"
+            android:name="com.example.memoriaviva2.dois.RoutineFragment"
             android:label="2"
             tools:layout="@layout/dois" />
     <fragment
