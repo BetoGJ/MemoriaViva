@@ -2,5 +2,17 @@
     <string name="app_name">MemoriaViva2</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_notifications">Notifications</string> <!-- Exemplo, substitua pelo nome real do seu app -->
+
+    <string name="welcome_message">Bem-vindo(a), %1$s!</string>
+    <string name="user_name_display">Nome: %1$s</string>
+    <string name="user_age_display">Idade: %1$d anos</string>
+    <string name="user_weight_display">Peso: %.1f kg</string>
+    <string name="user_surgeries_display">Cirurgias Recentes: %1$s</string>
+    <string name="user_hospitalizations_display">Internações Recentes: %1$s</string>
+    <string name="none_reported">Nenhuma informada</string>
+    <string name="patient_data_title">Dados do Paciente</string>
+    <string name="registration_activity_start_error">Erro ao iniciar tela de cadastro. Tente
+        novamente.
+    </string>
 </resources>

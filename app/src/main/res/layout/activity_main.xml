@@ -4,47 +4,159 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start"
+    tools:context=".MainActivity">
 
-    <!-- CONTEÚDO PRINCIPAL -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Conteúdo Principal da Activity (visível quando o drawer está fechado) -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator_layout_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <fragment
-            android:id="@+id/nav_host_fragment_activity_main"
-            android:name="androidx.navigation.fragment.NavHostFragment"
+        <!-- AppBarLayout para conter a Toolbar -->
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayoutMain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="?attr/actionBarTheme">
+            <!-- A visibilidade da Toolbar será controlada por Kotlin -->
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbarMain"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:titleTextColor="?attr/colorOnPrimary"
+                app:popupTheme="?attr/actionBarPopupTheme" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <!-- FrameLayout como contêiner direto do NavHostFragment -->
+        <!-- Visibilidade controlada por Kotlin. Deve estar visível se registrado. -->
+        <FrameLayout
+            android:id="@+id/nav_host_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:defaultNavHost="true"
-            app:layout_constraintBottom_toTopOf="@id/nav_viewBottom"
-            app:layout_constraintTop_toTopOf="parent"
-            app:navGraph="@navigation/mobile_navigation"
-            android:layout_marginTop="70dp" />
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:layout_marginBottom="?attr/actionBarSize"> <!-- Espaço para BottomNavigationView -->
 
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/nav_host_fragment_activity_main"
+                android:name="androidx.navigation.fragment.NavHostFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:defaultNavHost="true"
+                app:navGraph="@navigation/mobile_navigation" /> <!-- APONTA PARA SEU NAV GRAPH -->
+        </FrameLayout>
 
+        <!-- BottomNavigationView -->
+        <!-- Visibilidade controlada por Kotlin. Deve estar visível se registrado. -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/nav_viewBottom"
+            android:id="@+id/nav_view_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            app:menu="@menu/bottom_nav_menu"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:background="?android:attr/windowBackground"
+            app:menu="@menu/bottom_nav_menu" /> <!-- SEU MENU DA BOTTOM NAV -->
 
-        <Button
-            android:id="@+id/buttonMenu"
-            android:layout_width="wrap_content"
+        <!-- Views condicionais: Informações do Usuário e Redirecionamento -->
+        <!-- Estas podem começar como 'gone' e serem controladas por Kotlin -->
+        <ScrollView
+            android:id="@+id/scrollViewUserInfo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:visibility="gone"
+        android:elevation="4dp"
+        android:background="?android:colorBackground"
+        tools:visibility="gone"> <!-- 'gone' para preview, controlado por Kotlin -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="MENU"
-            app:layout_constraintBottom_toTopOf="@id/nav_viewBottom"
-            app:layout_constraintStart_toStartOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    <!-- MENU LATERAL -->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_viewSide"
-        android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/textViewWelcome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                tools:text="Bem-vindo(a), [Nome do Usuário]!"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/textViewUserNameDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                tools:text="Nome: ..."
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/textViewUserAgeDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                tools:text="Idade: ..."
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/textViewUserWeightDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                tools:text="Peso: ..."
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/textViewUserSurgeriesDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                tools:text="Cirurgias Recentes: ..."
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/textViewUserHospitalizationsDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                tools:text="Internações Recentes: ..."
+                android:layout_marginBottom="16dp"/>
+
+            <Button
+                android:id="@+id/buttonClearRegistrationTestData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Limpar Dados (Teste)"/>
+        </LinearLayout>
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/textViewRedirectingToRegistration"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:menu="@menu/sidemenu" />
-</androidx.drawerlayout.widget.DrawerLayout>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:text="Nenhum paciente registrado. Redirecionando para o cadastro..."
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        android:gravity="center"
+        android:visibility="gone"
+    android:elevation="8dp"
+    android:background="?android:colorBackground"
+    tools:visibility="gone"/> <!-- 'gone' para preview, controlado por Kotlin -->
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <!-- Navigation Drawer View (Side Menu) -->
+<com.google.android.material.navigation.NavigationView
+android:id="@+id/nav_view_side"
+android:layout_width="wrap_content"
+android:layout_height="match_parent"
+android:layout_gravity="start"
+android:fitsSystemWindows="true"
+app:menu="@menu/sidemenu" /> <!-- SEU MENU LATERAL (sidemenu.xml) -->
+
+    </androidx.drawerlayout.widget.DrawerLayout>
