@@ -19,11 +19,6 @@
 
     <!-- Tema específico para RegistrationActivity, pode herdar do principal -->
     <!-- Se o tema principal já é NoActionBar, pode apenas usar ele -->
-    <style name="Theme.MemoriaViva2.RegistrationActivity"
-        parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/black</item> <!-- Cor diferente para exemplo -->
-        <item name="colorPrimaryVariant">@color/black</item>
-    </style>
 
 
 </resources>

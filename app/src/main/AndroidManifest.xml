@@ -32,19 +32,8 @@
         android:name=".RegistrationActivity"
         android:exported="false"
         android:label="Cadastro do Paciente"
-        android:parentActivityName=".MainActivity"
-        android:theme="@style/Theme.MemoriaViva2.RegistrationActivity"> <!-- Tema específico ou o mesmo se for NoActionBar -->
-        <!-- A meta-data para parentActivityName é automaticamente adicionada
-             pelo build system quando você usa android:parentActivityName.
-             Se precisar por algum motivo específico (versões mais antigas ou bibliotecas de compatibilidade),
-             ela deve estar DENTRO da tag <activity> à qual se aplica.
-             Para a biblioteca de compatibilidade do AndroidX, o android:parentActivityName é suficiente.
-        -->
-        <!-- Exemplo de como seria a meta-data se necessária DENTRO da activity:
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value=".MainActivity" />
-        -->
+        android:parentActivityName=".MainActivity">
+
     </activity>
 
     <!-- Seu Receiver -->
