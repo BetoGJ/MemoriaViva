@@ -4,6 +4,8 @@
 
     <!-- Permissões devem estar aqui, fora da tag <application> -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -36,8 +38,9 @@
 
     </activity>
 
-    <!-- Seu Receiver -->
+    <!-- Receivers -->
     <receiver android:name=".NotificationReceiver" />
+    <receiver android:name=".ui.medications.MedicationAlarmReceiver" android:exported="false" />
 
 </application>
     </manifest>

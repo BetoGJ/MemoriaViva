@@ -1,10 +1,10 @@
-package com.example.memoriaviva2.dois // Ou seu pacote correspondente
+package com.example.memoriaviva2.ui.dois
 
 enum class ActivityClassification(val displayName: String) {
-    PHYSICAL_EXERCISE("Exercício físico"),
-    COGNITIVE_STIMULATION("Estimulação cognitiva"),
-    NUTRITION("Alimentação"),
-    HEALTH("Saúde");
+    EXERCICIO_FISICO("Exercício físico"),
+    ESTIMULACAO_COGNITIVA("Estimulação cognitiva"),
+    ALIMENTACAO("Alimentação"),
+    SAUDE("Saúde");
 
     companion object {
         fun fromDisplayName(displayName: String): ActivityClassification? {

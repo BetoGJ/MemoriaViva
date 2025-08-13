@@ -16,4 +16,9 @@
         android:icon="@drawable/ic_notifications_black_24dp"
         android:title="Remédios" />
 
+    <item
+        android:id="@+id/navigation_backup"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="Backup" />
+
 </menu>

@@ -1,4 +1,4 @@
-package com.example.memoriaviva2.dois
+package com.example.memoriaviva2.ui.dois
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.memoriaviva2.R // Importe o R do seu módulo app
+import com.example.memoriaviva2.R
 
 class RoutineAdapter(
     private val onItemClick: (RoutineActivity) -> Unit,
@@ -39,9 +39,8 @@ class RoutineAdapter(
         ) {
             tvTime.text = String.format("%02d:%02d", activity.hour, activity.minute)
             tvName.text = activity.name
-            tvClassification.text = activity.classification.displayName
+            tvClassification.text = activity.classification?.displayName ?: "Sem classificação"
 
-            // Configurar o CheckBox sem disparar o listener durante a configuração inicial
             cbIsDone.setOnCheckedChangeListener(null)
             cbIsDone.isChecked = activity.isDone
             cbIsDone.setOnCheckedChangeListener { _, isChecked ->
@@ -60,7 +59,7 @@ class RoutineAdapter(
         }
 
         override fun areContentsTheSame(oldItem: RoutineActivity, newItem: RoutineActivity): Boolean {
-            return oldItem == newItem // Data class compara todos os campos
+            return oldItem == newItem
         }
     }
 }

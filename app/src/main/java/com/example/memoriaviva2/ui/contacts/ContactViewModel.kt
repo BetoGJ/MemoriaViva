@@ -39,4 +39,8 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
         repository.updateEmergencyContact(contact)
         loadContacts()
     }
+
+    fun refreshContacts() {
+        loadContacts()
+    }
 }

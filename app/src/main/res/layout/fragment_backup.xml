@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Backup dos Dados"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Exporte seus dados para transferir para outro celular ou faça backup de segurança."
+        android:textSize="16sp"
+        android:layout_marginBottom="24dp"
+        android:textAlignment="center"
+        android:textColor="@android:color/darker_gray" />
+
+    <Button
+        android:id="@+id/buttonExport"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Exportar Dados"
+        android:textSize="18sp"
+        android:layout_marginBottom="16dp"
+        android:padding="16dp"
+        android:backgroundTint="@color/design_default_color_primary" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Importe dados de outro celular ou restaure um backup anterior."
+        android:textSize="16sp"
+        android:layout_marginBottom="24dp"
+        android:textAlignment="center"
+        android:textColor="@android:color/darker_gray" />
+
+    <Button
+        android:id="@+id/buttonImport"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Importar Dados"
+        android:textSize="18sp"
+        android:padding="16dp"
+        android:backgroundTint="@color/design_default_color_secondary" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚠️ Atenção: A importação substituirá todos os dados atuais."
+        android:textSize="14sp"
+        android:layout_marginTop="24dp"
+        android:textAlignment="center"
+        android:textColor="@android:color/holo_orange_dark" />
+
+</LinearLayout>

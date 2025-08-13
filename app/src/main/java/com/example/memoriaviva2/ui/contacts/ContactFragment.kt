@@ -139,4 +139,9 @@ class ContactFragment : Fragment() {
             }
             .show()
     }
+
+    override fun onResume() {
+        super.onResume()
+        contactViewModel.refreshContacts()
+    }
 }

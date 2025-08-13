@@ -19,9 +19,9 @@
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.example.memoriaviva2.ui.notifications.NotificationsFragment"
+        android:name="com.example.memoriaviva2.ui.medications.MedicationFragment"
         android:label="Remédios"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/simple_routine_layout" />
 
     <fragment
             android:id="@+id/item_1"
@@ -30,12 +30,17 @@
             tools:layout="@layout/um" />
     <fragment
             android:id="@+id/item_2"
-            android:name="com.example.memoriaviva2.dois.RoutineFragment"
-            android:label="2"
-            tools:layout="@layout/dois" />
+            android:name="com.example.memoriaviva2.ui.dois.WorkingRoutineFragment"
+            android:label="2" />
     <fragment
             android:id="@+id/item_3"
             android:name="com.example.memoriaviva2.ui.tela3.Tela3Fragment"
             android:label="3"
             tools:layout="@layout/tres" />
+    
+    <fragment
+        android:id="@+id/navigation_backup"
+        android:name="com.example.memoriaviva2.ui.backup.BackupFragment"
+        android:label="Backup"
+        tools:layout="@layout/fragment_backup" />
 </navigation>
