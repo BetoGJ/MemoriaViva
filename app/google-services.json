@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "265100487922",
+    "project_id": "memoriaviva-491fe",
+    "storage_bucket": "memoriaviva-491fe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265100487922:android:4b4e937d538d01fda0b46b",
+        "android_client_info": {
+          "package_name": "com.example.memoriaviva2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNGeIoIsUR403m-ledQYOjLUSn59SXs4Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

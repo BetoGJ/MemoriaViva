@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.memoriaviva2" />
+                  <option name="mobileSdkAppId" value="1:265100487922:android:4b4e937d538d01fda0b46b" />
+                  <option name="projectId" value="memoriaviva-491fe" />
+                  <option name="projectNumber" value="265100487922" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -41,6 +42,8 @@ android {
 
 dependencies {
 
+    implementation("com.google.firebase:firebase-analytics")
+    implementation(platform("com.google.firebase:firebase-bom:34.1.0"))
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.0") // Ou a versão do seu TOML
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.0") // Ou a versão do seu TOML
     implementation("androidx.fragment:fragment-ktx:1.6.2") // Ou a versão do seu TOML
