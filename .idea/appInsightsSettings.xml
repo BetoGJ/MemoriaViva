@@ -9,9 +9,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.example.memoriaviva2" />
-                  <option name="mobileSdkAppId" value="1:265100487922:android:4b4e937d538d01fda0b46b" />
-                  <option name="projectId" value="memoriaviva-491fe" />
-                  <option name="projectNumber" value="265100487922" />
+                  <option name="mobileSdkAppId" value="1:285429171151:android:3b706111c88179b8ee48ba" />
+                  <option name="projectId" value="localizanois-94fdc" />
+                  <option name="projectNumber" value="285429171151" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

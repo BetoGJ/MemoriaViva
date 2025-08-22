@@ -1,28 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:padding="16dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/txtTitulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tela de Rastreio"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"/>
+
+        <Button
+            android:id="@+id/btnTutor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Entrar como Tutor"/>
+
+        <Button
+            android:id="@+id/btnMonitorado"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Entrar como Monitorado"/>
+
+    </LinearLayout>
+
     <TextView
-        android:id="@+id/txtTitulo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Tela de Rastreio"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"/>
-
-    <Button
-        android:id="@+id/btnTutor"
+        android:id="@+id/txtStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Entrar como Tutor"/>
+        android:text="LOCALIZAÇÃO NÃO DISPONÍVEL"
+        android:textAlignment="center"
+        android:textSize="16sp"
+        android:padding="16dp"
+        android:background="#FFEBEE"
+        android:textColor="#D32F2F"/>
 
-    <Button
-        android:id="@+id/btnMonitorado"
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/txtLocationInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Entrar como Monitorado"/>
+        android:text="Aguardando conexão..."
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textSize="12sp"
+        android:padding="8dp"/>
+
 </LinearLayout>

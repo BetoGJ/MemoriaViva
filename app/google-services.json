@@ -1,13 +1,14 @@
 {
   "project_info": {
-    "project_number": "265100487922",
-    "project_id": "memoriaviva-491fe",
-    "storage_bucket": "memoriaviva-491fe.firebasestorage.app"
+    "project_number": "285429171151",
+    "firebase_url": "https://localizanois-94fdc-default-rtdb.firebaseio.com",
+    "project_id": "localizanois-94fdc",
+    "storage_bucket": "localizanois-94fdc.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:265100487922:android:4b4e937d538d01fda0b46b",
+        "mobilesdk_app_id": "1:285429171151:android:3b706111c88179b8ee48ba",
         "android_client_info": {
           "package_name": "com.example.memoriaviva2"
         }
@@ -15,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDNGeIoIsUR403m-ledQYOjLUSn59SXs4Q"
+          "current_key": "AIzaSyCvB9Y1IupItII6iiwLg3HqMoF1ulpk3EE"
         }
       ],
       "services": {

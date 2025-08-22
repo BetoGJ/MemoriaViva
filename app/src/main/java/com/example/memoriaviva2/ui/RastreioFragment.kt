@@ -15,6 +15,11 @@ import com.google.android.gms.location.*
 import android.os.Looper
 import android.location.LocationManager
 import android.content.Context
+import com.google.firebase.database.*
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.*
 
 class RastreioFragment : Fragment() {
 
@@ -22,6 +27,14 @@ class RastreioFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var isTracking = false
+    private var database: DatabaseReference = Firebase.database.reference
+    private var currentTrackingCode: String? = null
+    private var locationListener: ValueEventListener? = null
+    private var tutorLocation: android.location.Location? = null
+    private var monitoradoLocation: android.location.Location? = null
+    private var googleMap: GoogleMap? = null
+    private var tutorMarker: Marker? = null
+    private var monitoradoMarker: Marker? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,11 +48,20 @@ class RastreioFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         setupButtons()
+        setupMap(savedInstanceState)
+    }
+    
+    private fun setupMap(savedInstanceState: Bundle?) {
+        binding.mapView.onCreate(savedInstanceState)
+        binding.mapView.getMapAsync { map ->
+            googleMap = map
+            map.uiSettings.isZoomControlsEnabled = true
+        }
     }
 
     private fun setupButtons() {
         binding.btnTutor.setOnClickListener {
-            openMapsForTracking()
+            showTutorCodeDialog()
         }
 
         binding.btnMonitorado.setOnClickListener {
@@ -53,38 +75,24 @@ class RastreioFragment : Fragment() {
             return
         }
         
-        if (!isLocationEnabled()) {
-            Toast.makeText(context, "Ative o GPS nas configurações do dispositivo", Toast.LENGTH_LONG).show()
-            return
-        }
-        
         Toast.makeText(context, "Obtendo localização...", Toast.LENGTH_SHORT).show()
-        
-        // Sempre solicita localização atual para garantir precisão
         requestCurrentLocation()
     }
     
     private fun requestCurrentLocation() {
         val locationRequest = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY,
-            1000
-        ).setMaxUpdates(1)
-         .setWaitForAccurateLocation(true)
-         .build()
+            0
+        ).setMaxUpdates(1).build()
         
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                locationResult.lastLocation?.let { location ->
+                val location = locationResult.lastLocation
+                if (location != null) {
                     fusedLocationClient.removeLocationUpdates(this)
                     openMaps(location)
-                } ?: run {
-                    Toast.makeText(context, "GPS não conseguiu obter localização. Verifique se está ao ar livre.", Toast.LENGTH_LONG).show()
-                }
-            }
-            
-            override fun onLocationAvailability(availability: LocationAvailability) {
-                if (!availability.isLocationAvailable) {
-                    Toast.makeText(context, "GPS indisponível. Verifique as configurações.", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(context, "Localização não encontrada", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -95,11 +103,11 @@ class RastreioFragment : Fragment() {
             Looper.getMainLooper()
         )
         
-        // Timeout após 10 segundos
+        // Timeout de 8 segundos
         android.os.Handler(Looper.getMainLooper()).postDelayed({
             fusedLocationClient.removeLocationUpdates(locationCallback)
-            Toast.makeText(context, "Timeout: Não foi possível obter localização", Toast.LENGTH_SHORT).show()
-        }, 10000)
+            Toast.makeText(context, "Tempo esgotado. Tente novamente.", Toast.LENGTH_SHORT).show()
+        }, 8000)
     }
     
     private fun openMaps(location: android.location.Location) {
@@ -124,11 +132,6 @@ class RastreioFragment : Fragment() {
             return
         }
         
-        if (!isLocationEnabled()) {
-            Toast.makeText(context, "Ative o GPS nas configurações", Toast.LENGTH_LONG).show()
-            return
-        }
-        
         if (!isTracking) {
             showTrackingKeyDialog()
         } else {
@@ -139,17 +142,18 @@ class RastreioFragment : Fragment() {
     private fun showTrackingKeyDialog() {
         val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
         val input = android.widget.EditText(requireContext())
-        input.hint = "Digite a chave de rastreamento"
+        input.hint = "Digite 4 caracteres"
+        input.filters = arrayOf(android.text.InputFilter.LengthFilter(4))
         
         builder.setTitle("Chave de Rastreamento")
-            .setMessage("Digite a chave fornecida pelo tutor para iniciar o compartilhamento")
+            .setMessage("Digite a chave de 4 caracteres fornecida pelo tutor")
             .setView(input)
             .setPositiveButton("Conectar") { _, _ ->
-                val key = input.text.toString().trim()
-                if (key.isNotEmpty()) {
+                val key = input.text.toString().trim().uppercase()
+                if (validateCode(key)) {
                     startTracking(key)
                 } else {
-                    Toast.makeText(context, "Chave não pode estar vazia", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Código deve ter exatamente 4 caracteres", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancelar", null)
@@ -157,18 +161,400 @@ class RastreioFragment : Fragment() {
     }
     
     private fun startTracking(key: String) {
+        currentTrackingCode = key
         isTracking = true
         binding.btnMonitorado.text = getString(R.string.stop_sharing)
-        Toast.makeText(context, "Rastreamento iniciado com chave: $key", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Compartilhando localização: $key", Toast.LENGTH_SHORT).show()
         
-        // Aqui você salvaria a chave e iniciaria o envio para Firebase
-        // Por exemplo: saveTrackingKey(key)
+        startLocationSharing()
+        showOwnLocationOnMap()
+    }
+    
+    private fun startLocationSharing() {
+        if (!checkLocationPermission()) {
+            requestLocationPermission()
+            return
+        }
+        
+        // Força GPS de alta precisão para coordenadas reais do celular
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            2000 // 2 segundos - muito frequente
+        ).setMinUpdateIntervalMillis(500) // Mínimo 0.5 segundo
+         .setMaxUpdateDelayMillis(3000) // Máximo 3 segundos
+         .setMinUpdateDistanceMeters(1f) // Atualiza a cada 1 metro
+         .setWaitForAccurateLocation(true) // Espera GPS preciso
+         .build()
+        
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.lastLocation?.let { location ->
+                    // Verifica se a localização é válida e precisa
+                    if (location.accuracy <= 20) { // Precisão de até 20 metros
+                        sendLocationToFirebase(location)
+                        // Atualiza próprio mapa em tempo real
+                        showLocationOnMap(location.latitude, location.longitude, "Minha Localização", true)
+                        // Atualiza informações de localização
+                        showLocationConnected(location.latitude, location.longitude, System.currentTimeMillis(), "GPS Ativo")
+                    } else {
+                        // GPS ainda não está preciso o suficiente
+                        Toast.makeText(context, "Aguardando GPS mais preciso...", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+        
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
+        
+        Toast.makeText(context, "Rastreamento em tempo real ativo", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun sendLocationToFirebase(location: android.location.Location) {
+        currentTrackingCode?.let { code ->
+            // Validação de segurança antes de enviar
+            if (!validateCode(code)) {
+                Toast.makeText(context, "Código inválido", Toast.LENGTH_SHORT).show()
+                return
+            }
+            
+            // Debug: mostra coordenadas capturadas do GPS
+            val lat = location.latitude
+            val lng = location.longitude
+            
+            val locationData = mapOf(
+                "latitude" to lat,
+                "longitude" to lng,
+                "accuracy" to location.accuracy,
+                "timestamp" to com.google.firebase.database.ServerValue.TIMESTAMP,
+                "package" to "com.example.memoriaviva2"
+            )
+            
+            database.child("localiza_nois").child(code).setValue(locationData)
+                .addOnSuccessListener {
+                    // Confirma envio das coordenadas reais
+                    Toast.makeText(context, "GPS: ${String.format("%.6f", lat)}, ${String.format("%.6f", lng)}", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { error ->
+                    Toast.makeText(context, "Erro Firebase: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
     }
     
     private fun stopTracking() {
         isTracking = false
         binding.btnMonitorado.text = getString(R.string.start_monitoring)
         Toast.makeText(context, getString(R.string.location_sharing_disabled), Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun showTutorCodeDialog() {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        val input = android.widget.EditText(requireContext())
+        input.hint = "Digite 4 caracteres"
+        input.filters = arrayOf(android.text.InputFilter.LengthFilter(4))
+        
+        builder.setTitle("Código do Monitorado")
+            .setMessage("Digite o código de 4 caracteres do monitorado")
+            .setView(input)
+            .setPositiveButton("Rastrear") { _, _ ->
+                val code = input.text.toString().trim().uppercase()
+                if (validateCode(code)) {
+                    startTutorTracking(code)
+                } else {
+                    Toast.makeText(context, "Código deve ter exatamente 4 caracteres", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+    
+    private fun validateCode(code: String): Boolean {
+        return code.length == 4 && code.matches(Regex("[A-Z0-9]{4}"))
+    }
+    
+    private fun startTutorTracking(code: String) {
+        currentTrackingCode = code
+        binding.txtStatus.text = "Conectando ao monitorado: $code"
+        binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#FFF3E0"))
+        binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#F57C00"))
+        
+        // Inicia rastreamento da própria localização do tutor
+        startTutorLocationTracking()
+        
+        // Remove listener anterior se existir
+        locationListener?.let { 
+            database.child("localiza_nois").child(code).removeEventListener(it)
+        }
+        
+        // Novo listener para atualizações em tempo real
+        locationListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val latitude = snapshot.child("latitude").getValue(Double::class.java)
+                    val longitude = snapshot.child("longitude").getValue(Double::class.java)
+                    val timestamp = snapshot.child("timestamp").getValue(Long::class.java)
+                    
+                    if (latitude != null && longitude != null) {
+                        // Atualiza localização do monitorado
+                        monitoradoLocation = android.location.Location("").apply {
+                            this.latitude = latitude
+                            this.longitude = longitude
+                        }
+                        
+                        showLocationConnected(latitude, longitude, timestamp, "Monitorado: $code")
+                        // Usa coordenadas do Firebase para mostrar no mapa integrado
+                        showFirebaseLocationOnMap(latitude, longitude)
+                        checkGeofence()
+                    } else {
+                        showLocationNotAvailable()
+                    }
+                } else {
+                    showLocationNotAvailable()
+                }
+            }
+            
+            override fun onCancelled(error: DatabaseError) {
+                showLocationNotAvailable()
+                Toast.makeText(context, "Erro Firebase: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+        
+        database.child("localiza_nois").child(code).addValueEventListener(locationListener!!)
+    }
+    
+    private fun showLocationConnected(latitude: Double, longitude: Double, timestamp: Long?, title: String) {
+        binding.txtStatus.text = "CONECTADO"
+        binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#E8F5E8"))
+        binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#2E7D32"))
+        
+        val timeStr = if (timestamp != null) {
+            val date = java.util.Date(timestamp)
+            java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(date)
+        } else "--:--:--"
+        
+        binding.txtLocationInfo.text = "$title\n" +
+                "${String.format("%.6f", latitude)}, ${String.format("%.6f", longitude)}\n" +
+                "Última atualização: $timeStr\n" +
+                "[Toque para buscar no Google Maps]"
+        
+        // Adiciona clique para buscar coordenadas no Google Maps
+        binding.txtLocationInfo.setOnClickListener {
+            searchCoordinatesInGoogleMaps(latitude, longitude)
+        }
+        
+        binding.txtLocationInfo.setOnClickListener {
+            openExternalMap(latitude, longitude, title)
+        }
+    }
+    
+    private fun showOwnLocationOnMap() {
+        if (!checkLocationPermission()) {
+            requestLocationPermission()
+            return
+        }
+        
+        binding.txtStatus.text = "OBTENDO LOCALIZAÇÃO..."
+        binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#FFF3E0"))
+        binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#F57C00"))
+        
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                showLocationConnected(location.latitude, location.longitude, System.currentTimeMillis(), "Minha Localização")
+                showLocationOnMap(location.latitude, location.longitude, "Minha Localização", true)
+            } else {
+                requestCurrentLocationForMap()
+            }
+        }
+    }
+    
+    private fun requestCurrentLocationForMap() {
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            0
+        ).setMaxUpdates(1).build()
+        
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.lastLocation?.let { location ->
+                    fusedLocationClient.removeLocationUpdates(this)
+                    showLocationConnected(location.latitude, location.longitude, System.currentTimeMillis(), "Minha Localização")
+                    showLocationOnMap(location.latitude, location.longitude, "Minha Localização", true)
+                }
+            }
+        }
+        
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
+    }
+    
+    private fun openExternalMap(latitude: Double, longitude: Double, title: String) {
+        val uri = "geo:$latitude,$longitude?q=$latitude,$longitude($title)"
+        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(uri))
+        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+            startActivity(intent)
+        }
+    }
+    
+    private fun startTutorLocationTracking() {
+        if (!checkLocationPermission()) return
+        
+        // Tutor também precisa de tracking frequente para geofencing preciso
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            5000 // 5 segundos para geofencing rápido
+        ).build()
+        
+        val tutorCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.lastLocation?.let { location ->
+                    tutorLocation = location
+                    // Adiciona marcador azul do tutor no mapa
+                    addTutorMarkerToMap(location.latitude, location.longitude)
+                    checkGeofence()
+                }
+            }
+        }
+        
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            tutorCallback,
+            Looper.getMainLooper()
+        )
+    }
+    
+    private fun addTutorMarkerToMap(latitude: Double, longitude: Double) {
+        googleMap?.let { map ->
+            val position = LatLng(latitude, longitude)
+            
+            tutorMarker?.remove()
+            tutorMarker = map.addMarker(
+                MarkerOptions()
+                    .position(position)
+                    .title("Tutor (Você)")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+            )
+        }
+    }
+    
+    private fun checkGeofence() {
+        val tutor = tutorLocation
+        val monitorado = monitoradoLocation
+        
+        if (tutor != null && monitorado != null) {
+            val distance = tutor.distanceTo(monitorado)
+            
+            if (distance > 100) { // 100 metros - ALARME
+                triggerGeofenceAlarm(distance)
+            } else {
+                // Dentro da área segura
+                binding.txtStatus.text = "CONECTADO - DISTÂNCIA: ${String.format("%.0f", distance)}m"
+                binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#E8F5E8"))
+                binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#2E7D32"))
+            }
+        }
+    }
+    
+    private fun triggerGeofenceAlarm(distance: Float) {
+        val distanceText = String.format("%.0f metros", distance)
+        
+        // ALARME VISUAL E SONORO
+        Toast.makeText(context, "🚨 ALARME: Monitorado muito longe! $distanceText", Toast.LENGTH_LONG).show()
+        
+        // Status vermelho piscante
+        binding.txtStatus.text = "🚨 ALARME - $distanceText"
+        binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#F44336"))
+        binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#FFFFFF"))
+        
+        // Vibração se disponível
+        try {
+            val vibrator = requireContext().getSystemService(android.content.Context.VIBRATOR_SERVICE) as android.os.Vibrator
+            vibrator.vibrate(1000) // 1 segundo
+        } catch (e: Exception) {
+            // Ignora se não tiver vibrador
+        }
+    }
+    
+    private fun showLocationOnMap(latitude: Double, longitude: Double, title: String, isOwnLocation: Boolean = false) {
+        googleMap?.let { map ->
+            val position = LatLng(latitude, longitude)
+            
+            if (isOwnLocation) {
+                // Monitorado vendo sua própria localização
+                monitoradoMarker?.remove()
+                monitoradoMarker = map.addMarker(
+                    MarkerOptions()
+                        .position(position)
+                        .title("Você")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                )
+                // Segue o usuário em tempo real
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 17f))
+            } else {
+                // Tutor vendo localização do monitorado - atualização suave
+                monitoradoMarker?.remove()
+                monitoradoMarker = map.addMarker(
+                    MarkerOptions()
+                        .position(position)
+                        .title("👤 Monitorado")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                )
+                
+                // Mantém ambos os marcadores visíveis se possível
+                if (tutorLocation != null) {
+                    val tutorPos = LatLng(tutorLocation!!.latitude, tutorLocation!!.longitude)
+                    val bounds = LatLngBounds.Builder()
+                        .include(position)
+                        .include(tutorPos)
+                        .build()
+                    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
+                } else {
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
+                }
+            }
+        }
+    }
+    
+    private fun showFirebaseLocationOnMap(latitude: Double, longitude: Double) {
+        // Mostra coordenadas do Firebase no mapa integrado do app
+        googleMap?.let { map ->
+            val position = LatLng(latitude, longitude)
+            
+            // Remove marcadores anteriores
+            monitoradoMarker?.remove()
+            
+            // Adiciona marcador com coordenadas do Firebase
+            monitoradoMarker = map.addMarker(
+                MarkerOptions()
+                    .position(position)
+                    .title("📍 Localização Compartilhada")
+                    .snippet("${String.format("%.6f", latitude)}, ${String.format("%.6f", longitude)}")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+            )
+            
+            // Centraliza mapa nas coordenadas compartilhadas
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 16f))
+        }
+    }
+    
+    private fun searchCoordinatesInGoogleMaps(latitude: Double, longitude: Double) {
+        // Atualiza o mapa integrado com as coordenadas
+        showFirebaseLocationOnMap(latitude, longitude)
+        Toast.makeText(context, "Mapa atualizado com coordenadas compartilhadas", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun showLocationNotAvailable() {
+        binding.txtStatus.text = "LOCALIZAÇÃO NÃO DISPONÍVEL"
+        binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#FFEBEE"))
+        binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#D32F2F"))
+        
+        binding.txtLocationInfo.text = "Código incorreto ou sem conexão"
+        binding.txtLocationInfo.setOnClickListener(null)
     }
 
     private fun checkLocationPermission(): Boolean {
@@ -197,9 +583,31 @@ class RastreioFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.mapView.onResume()
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        binding.mapView.onPause()
+    }
+    
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.mapView.onDestroy()
+        // Remove Firebase listener
+        locationListener?.let { listener ->
+            currentTrackingCode?.let { code ->
+                database.child("localiza_nois").child(code).removeEventListener(listener)
+            }
+        }
         _binding = null
+    }
+    
+    override fun onLowMemory() {
+        super.onLowMemory()
+        binding.mapView.onLowMemory()
     }
     
     companion object {

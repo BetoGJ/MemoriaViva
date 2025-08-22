@@ -99,112 +99,62 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeViews() {
-        toolbarMain = findViewById(R.id.toolbarMain)
-        setSupportActionBar(toolbarMain) // Configura a Toolbar como ActionBar
+        try {
+            toolbarMain = findViewById(R.id.toolbarMain)
+            setSupportActionBar(toolbarMain)
 
-        navHostContainer = findViewById(R.id.nav_host_container) // Referência ao container do NavHost
+            navHostContainer = findViewById(R.id.nav_host_container)
+            scrollViewUserInfo = findViewById(R.id.scrollViewUserInfo)
+            textViewWelcome = findViewById(R.id.textViewWelcome)
+            textViewUserNameDisplay = findViewById(R.id.textViewUserNameDisplay)
+            textViewUserAgeDisplay = findViewById(R.id.textViewUserAgeDisplay)
+            textViewUserWeightDisplay = findViewById(R.id.textViewUserWeightDisplay)
+            textViewUserSurgeriesDisplay = findViewById(R.id.textViewUserSurgeriesDisplay)
+            textViewUserHospitalizationsDisplay = findViewById(R.id.textViewUserHospitalizationsDisplay)
+            buttonClearTestData = findViewById(R.id.buttonClearRegistrationTestData)
+            textViewRedirecting = findViewById(R.id.textViewRedirectingToRegistration)
 
-        // Views condicionais
-        scrollViewUserInfo = findViewById(R.id.scrollViewUserInfo)
-        textViewWelcome = findViewById(R.id.textViewWelcome)
-        textViewUserNameDisplay = findViewById(R.id.textViewUserNameDisplay)
-        textViewUserAgeDisplay = findViewById(R.id.textViewUserAgeDisplay)
-        textViewUserWeightDisplay = findViewById(R.id.textViewUserWeightDisplay)
-        textViewUserSurgeriesDisplay = findViewById(R.id.textViewUserSurgeriesDisplay)
-        textViewUserHospitalizationsDisplay = findViewById(R.id.textViewUserHospitalizationsDisplay)
-        buttonClearTestData = findViewById(R.id.buttonClearRegistrationTestData)
-        textViewRedirecting = findViewById(R.id.textViewRedirectingToRegistration)
+            buttonClearTestData.setOnClickListener {
+                clearRegistrationDataAndRestartCheck()
+            }
 
-        buttonClearTestData.setOnClickListener {
-            Log.d(TAG, "Botão 'Limpar Dados (Teste)' clicado.")
-            clearRegistrationDataAndRestartCheck()
+            drawerLayout = findViewById(R.id.drawer_layout)
+            bottomNavView = findViewById(R.id.nav_view_bottom)
+            sideNavView = findViewById(R.id.nav_view_side)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error initializing views", e)
+            finish()
         }
-
-        // Componentes de navegação principais (inicializados aqui, configurados em setupNavigation)
-        drawerLayout = findViewById(R.id.drawer_layout) // Pode ser nulo
-        bottomNavView = findViewById(R.id.nav_view_bottom) // Deve existir
-        sideNavView = findViewById(R.id.nav_view_side)     // Pode ser nulo (se não houver drawer)
     }
 
     private fun setupNavigation() {
-        Log.d(TAG, "setupNavigation: Iniciando configuração da navegação.")
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
-        navController = navHostFragment.navController
-        Log.d(TAG, "setupNavigation: NavController obtido.")
+        try {
+            val navHostFragment = supportFragmentManager
+                .findFragmentById(R.id.nav_host_fragment_activity_main) as? NavHostFragment
+            if (navHostFragment == null) {
+                Log.e(TAG, "NavHostFragment not found")
+                return
+            }
+            navController = navHostFragment.navController
 
-        // Define os destinos de nível superior para o AppBarConfiguration.
-        val topLevelDestinations = getTopLevelDestinationsFromMenus()
+            val topLevelDestinations = setOf(R.id.navigation_home, R.id.navigation_contact, R.id.navigation_notifications, R.id.navigation_backup, R.id.navigation_rastreio)
 
-        appBarConfiguration = if (drawerLayout != null) {
-            AppBarConfiguration(topLevelDestinations, drawerLayout)
-        } else {
-            AppBarConfiguration(topLevelDestinations)
-        }
-        Log.d(TAG, "setupNavigation: AppBarConfiguration criada com destinos: $topLevelDestinations e drawer: ${drawerLayout != null}")
-
-        // Conecta a ActionBar (Toolbar) com o NavController
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        Log.d(TAG, "setupNavigation: ActionBar (Toolbar) configurada com NavController.")
-
-        // Conecta BottomNavigationView com o NavController
-        bottomNavView.setupWithNavController(navController)
-        Log.d(TAG, "setupNavigation: BottomNavigationView configurada com NavController.")
-
-        // Conecta NavigationView (menu lateral) com o NavController (se existir)
-        sideNavView?.setupWithNavController(navController)
-        if (sideNavView != null) Log.d(TAG, "setupNavigation: NavigationView (lateral) configurada com NavController.")
-        else Log.d(TAG, "setupNavigation: NavigationView (lateral) não encontrada ou não configurada.")
-
-        // Listener para controlar a visibilidade do scrollViewUserInfo vs navHostContainer
-        // Esta é uma abordagem. Outra é ter um "HomeFragment" que mostra os dados do usuário.
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            // Adapte R.id.navigation_home ao ID real do seu destino "home" no nav_graph.xml
-            // Se o seu destino home DEVE mostrar o scrollViewUserInfo:
-            if (destination.id == R.id.navigation_home) { // SUBSTITUA PELO SEU ID DE DESTINO HOME
-                scrollViewUserInfo.isVisible = true
-                // Se a home é o scrollView, o navHostContainer pode ser escondido
-                // ou o fragmento home simplesmente não infla nada visível.
-                // Para clareza, se scrollViewUserInfo é a home, o fragmento associado a R.id.navigation_home
-                // no nav_graph poderia ser um fragmento vazio ou um que não interfira.
-                // navHostContainer.isVisible = false; // Descomente se a home for APENAS o scrollview
-                Log.d(TAG, "Navigated to Home destination, showing user info scroll view.")
+            appBarConfiguration = if (drawerLayout != null) {
+                AppBarConfiguration(topLevelDestinations, drawerLayout)
             } else {
-                scrollViewUserInfo.isVisible = false
-                // navHostContainer.isVisible = true; // Garante que está visível para outros fragmentos
-                Log.d(TAG, "Navigated to other destination (${destination.label}), hiding user info scroll view.")
+                AppBarConfiguration(topLevelDestinations)
             }
+
+            setupActionBarWithNavController(navController, appBarConfiguration)
+            bottomNavView.setupWithNavController(navController)
+            sideNavView?.setupWithNavController(navController)
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error setting up navigation", e)
         }
-        Log.i(TAG, "setupNavigation: Configuração da navegação concluída.")
     }
 
-    private fun getTopLevelDestinationsFromMenus(): Set<Int> {
-        val destinations = mutableSetOf<Int>()
-        bottomNavView.menu.let { menu ->
-            for (i in 0 until menu.size()) {
-                val item = menu.getItem(i)
-                if (item.itemId != View.NO_ID && item.itemId != 0) {
-                    destinations.add(item.itemId)
-                }
-            }
-        }
-        sideNavView?.menu?.let { menu ->
-            for (i in 0 until menu.size()) {
-                val item = menu.getItem(i)
-                if (item.itemId != View.NO_ID && item.itemId != 0) {
-                    destinations.add(item.itemId)
-                }
-            }
-        }
-        if (destinations.isEmpty()) {
-            // Se nenhum destino for encontrado nos menus, adicione o startDestination do gráfico como fallback
-            // ou defina um conjunto padrão. É importante ter pelo menos o startDestination.
-            Log.w(TAG, "Nenhum destino de nível superior encontrado nos menus. Usando o startDestination do NavGraph.")
-            destinations.add(navController.graph.startDestinationId)
-        }
-        Log.d(TAG, "setupNavigation: Destinos de nível superior definidos: $destinations")
-        return destinations
-    }
+
 
 
     private fun checkUserRegistrationStatusAndSetupUI() {
@@ -228,14 +178,7 @@ class MainActivity : AppCompatActivity() {
         navHostContainer.isVisible = true // Container dos fragmentos deve estar visível
         bottomNavView.isVisible = true   // Menu inferior visível
 
-        // Estado inicial do scrollViewUserInfo (se a home o mostra)
-        // O addOnDestinationChangedListener em setupNavigation cuidará disso dinamicamente.
-        // Forçamos o estado inicial aqui baseado no destino atual (que provavelmente é o startDestination).
-        if (navController.currentDestination?.id == R.id.navigation_home) { // SUBSTITUA PELO SEU ID DE DESTINO HOME
-            scrollViewUserInfo.isVisible = true
-        } else {
-            scrollViewUserInfo.isVisible = false
-        }
+        scrollViewUserInfo.isVisible = false
 
         textViewRedirecting.isVisible = false // Esconder mensagem de redirecionamento
 

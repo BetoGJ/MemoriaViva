@@ -5,6 +5,7 @@ plugins {
     id("com.google.gms.google-services")
 
 
+
 }
 
 android {
@@ -13,8 +14,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.memoriaviva2"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = 23
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
 
@@ -44,10 +45,9 @@ android {
 
 dependencies {
     // Firebase BOM - versão única
-    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database-ktx")
-    implementation("com.google.firebase:firebase-auth-ktx")
     
     // AndroidX e Material Design - usando libs catalog
     implementation(libs.androidx.core.ktx)
