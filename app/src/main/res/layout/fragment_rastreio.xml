@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/txtTitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tela de Rastreio"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"/>
+
+    <Button
+        android:id="@+id/btnTutor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Entrar como Tutor"/>
+
+    <Button
+        android:id="@+id/btnMonitorado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Entrar como Monitorado"/>
+</LinearLayout>

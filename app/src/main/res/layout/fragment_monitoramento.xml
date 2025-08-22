@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/txtTituloMonitoramento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Monitoramento de Localização"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:id="@+id/txtStatusMonitoramento"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Status: Aguardando permissões..."
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/txtUltimaLocalizacao"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Última localização: --"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnIniciarMonitoramento"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Iniciar Monitoramento"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btnPararMonitoramento"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Parar Monitoramento"
+        android:enabled="false"/>
+
+</LinearLayout>

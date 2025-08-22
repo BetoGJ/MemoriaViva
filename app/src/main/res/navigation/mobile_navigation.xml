@@ -4,6 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/navigation_home">
+    
+    <fragment
+        android:id="@+id/navigation_rastreio"
+        android:name="com.example.memoriaviva2.ui.RastreioFragment"
+        android:label="Rastreio"
+        tools:layout="@layout/fragment_rastreio" />
 
     <fragment
         android:id="@+id/navigation_home"
