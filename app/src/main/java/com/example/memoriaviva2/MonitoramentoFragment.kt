@@ -79,17 +79,13 @@ class MonitoramentoFragment : Fragment() {
     private fun startLocationUpdates() {
         val locationRequest = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY,
-            10000 // 10 segundos
+            30000 // 30 segundos para economizar bateria
         ).build()
 
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
+        locationCallback?.let { callback ->
             fusedLocationClient?.requestLocationUpdates(
                 locationRequest,
-                locationCallback!!,
+                callback,
                 Looper.getMainLooper()
             )
         }
@@ -103,6 +99,13 @@ class MonitoramentoFragment : Fragment() {
         )
         
         database?.child("locations")?.push()?.setValue(locationData)
+            ?.addOnSuccessListener {
+                // Localização enviada com sucesso
+            }
+            ?.addOnFailureListener { exception ->
+                // Tratar erro de envio
+                android.util.Log.e("MonitoramentoFragment", "Erro ao enviar localização", exception)
+            }
     }
 
     override fun onRequestPermissionsResult(
@@ -120,7 +123,9 @@ class MonitoramentoFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        fusedLocationClient?.removeLocationUpdates(locationCallback!!)
+        locationCallback?.let { callback ->
+            fusedLocationClient?.removeLocationUpdates(callback)
+        }
         mediaPlayer?.release()
     }
 

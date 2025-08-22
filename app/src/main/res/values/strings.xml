@@ -15,4 +15,14 @@
     <string name="registration_activity_start_error">Erro ao iniciar tela de cadastro. Tente
         novamente.
     </string>
+    
+    <!-- Strings para RastreioFragment -->
+    <string name="maps_app_not_found">App de mapas não encontrado</string>
+    <string name="location_not_available">Localização não disponível</string>
+    <string name="location_error">Erro ao obter localização</string>
+    <string name="permission_granted">Permissão concedida</string>
+    <string name="stop_sharing">Parar Compartilhamento</string>
+    <string name="start_monitoring">Entrar como Monitorado</string>
+    <string name="location_sharing_enabled">Compartilhamento de localização ativado</string>
+    <string name="location_sharing_disabled">Compartilhamento de localização desativado</string>
 </resources>
