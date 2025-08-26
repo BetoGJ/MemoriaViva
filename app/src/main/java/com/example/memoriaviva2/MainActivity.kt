@@ -261,7 +261,7 @@ class MainActivity : AppCompatActivity() {
         // esta chamada pode ser redundante ou causar uma reconfiguração da UI desnecessária.
         // Avalie com base no seu fluxo completo. Por segurança, manter pode ser bom.
         checkUserRegistrationStatusAndSetupUI()
-        Log.d(TAG, "onResume: Status do usuário e UI revalidados.");
+        Log.d(TAG, "onResume: Status do usuário e UI revalidados.")
     }
 
     // Não é necessário sobrescrever onPause, onStop, onDestroy apenas para logs,

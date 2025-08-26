@@ -47,6 +47,14 @@
 
     </activity>
 
+    <!-- Atividades Recreativas -->
+    <activity android:name=".ui.recreativa.FraseDiaActivity" android:exported="false" />
+    <activity android:name=".ui.recreativa.JogoMemoriaActivity" android:exported="false" />
+    <activity android:name=".ui.recreativa.QuizImagensActivity" android:exported="false" />
+    <activity android:name=".ui.recreativa.RespiracaoActivity" android:exported="false" />
+    <activity android:name=".ui.recreativa.AlongamentoActivity" android:exported="false" />
+    <activity android:name=".ui.recreativa.AlbumMemoriasActivity" android:exported="false" />
+
     <!-- Receivers -->
     <receiver android:name=".NotificationReceiver" />
     <receiver android:name=".ui.medications.MedicationAlarmReceiver" android:exported="false" />

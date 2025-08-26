@@ -23,6 +23,6 @@
     <item
         android:id="@+id/navigation_rastreio"
         android:icon="@android:drawable/ic_menu_mylocation"
-        android:title="Rastreio" />
+        android:title="Localização" />
 
 </menu>

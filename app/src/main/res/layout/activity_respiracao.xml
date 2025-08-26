@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/light_gray"
+    android:gravity="center">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="32dp">
+
+        <Button
+            android:id="@+id/btnVoltarRespiracao"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:text="←"
+            android:textSize="20sp"
+            android:backgroundTint="@color/teal_200"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="💨 Respiração Guiada"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/teal_200"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textoInstrucao"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pressione 'Iniciar' para começar"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:textAlignment="center"
+        android:layout_marginBottom="48dp" />
+
+    <!-- Círculo de respiração -->
+    <View
+        android:id="@+id/circuloRespiracao"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:background="@drawable/circulo_respiracao"
+        android:layout_marginBottom="48dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnIniciar"
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_weight="1"
+            android:text="Iniciar"
+            android:textSize="18sp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@color/teal_200" />
+
+        <Button
+            android:id="@+id/btnParar"
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_weight="1"
+            android:text="Parar"
+            android:textSize="18sp"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/purple_700"
+            android:enabled="false" />
+
+    </LinearLayout>
+
+</LinearLayout>

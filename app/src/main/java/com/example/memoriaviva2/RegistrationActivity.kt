@@ -94,7 +94,16 @@ class RegistrationActivity : AppCompatActivity() {
             return
         }
 
-        with(sharedPreferences.edit()) {
+        // Verificar se já está registrado
+        if (sharedPreferences.getBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, false)) {
+            Toast.makeText(this, "Usuário já cadastrado!", Toast.LENGTH_SHORT).show()
+            setResult(Activity.RESULT_OK)
+            finish()
+            return
+        }
+        
+        // Salvar dados
+        sharedPreferences.edit().apply {
             putBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, true)
             putString(AppPreferencesKeys.KEY_USER_NAME, name)
             putInt(AppPreferencesKeys.KEY_USER_AGE, age!!)
@@ -103,7 +112,7 @@ class RegistrationActivity : AppCompatActivity() {
             putString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, hospitalizations)
             apply()
         }
-
+        
         Toast.makeText(this, "Paciente registrado com sucesso!", Toast.LENGTH_SHORT).show()
         setResult(Activity.RESULT_OK)
         finish()

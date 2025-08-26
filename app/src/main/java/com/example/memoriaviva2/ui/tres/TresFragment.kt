@@ -1,6 +1,6 @@
-package com.example.memoriaviva2.ui.tela3
-import com.example.memoriaviva2.R
+package com.example.memoriaviva2.ui.tres
 
 import androidx.fragment.app.Fragment
+import com.example.memoriaviva2.R
 
-class Tela3Fragment : Fragment(R.layout.tres)
+class TresFragment : Fragment(R.layout.tres)

@@ -55,9 +55,13 @@
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/nav_view_bottom"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="88dp"
             android:layout_gravity="bottom"
             android:background="?android:attr/windowBackground"
+            app:itemTextAppearanceActive="@style/BottomNavigationTextActive"
+            app:itemTextAppearanceInactive="@style/BottomNavigationTextInactive"
+            app:itemIconSize="28dp"
+            app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_nav_menu" /> <!-- SEU MENU DA BOTTOM NAV -->
 
         <!-- Views condicionais: Informações do Usuário e Redirecionamento -->
@@ -76,62 +80,126 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:background="@color/light_gray">
 
-            <TextView
-                android:id="@+id/textViewWelcome"
-                android:layout_width="wrap_content"
+            <!-- Card de Boas-vindas -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                tools:text="Bem-vindo(a), [Nome do Usuário]!"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp"
+                app:cardBackgroundColor="@color/purple_500">
 
-            <TextView
-                android:id="@+id/textViewUserNameDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                tools:text="Nome: ..."
-                android:layout_marginBottom="4dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="20dp"
+                    android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/textViewUserAgeDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                tools:text="Idade: ..."
-                android:layout_marginBottom="4dp"/>
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@android:drawable/ic_menu_myplaces"
+                        android:layout_marginEnd="16dp"
+                        app:tint="@color/white" />
 
-            <TextView
-                android:id="@+id/textViewUserWeightDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                tools:text="Peso: ..."
-                android:layout_marginBottom="4dp"/>
+                    <TextView
+                        android:id="@+id/textViewWelcome"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        tools:text="Bem-vindo(a), João!" />
 
-            <TextView
-                android:id="@+id/textViewUserSurgeriesDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                tools:text="Cirurgias Recentes: ..."
-                android:layout_marginBottom="4dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:id="@+id/textViewUserHospitalizationsDisplay"
-                android:layout_width="wrap_content"
+            <!-- Card de Dados do Usuário -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                tools:text="Internações Recentes: ..."
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/card_background">
 
-            <Button
-                android:id="@+id/buttonClearRegistrationTestData"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Limpar Dados (Teste)"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Seus Dados"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/purple_500"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:id="@+id/textViewUserNameDisplay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        tools:text="Nome: João Silva"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/textViewUserAgeDisplay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        tools:text="Idade: 75 anos"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/textViewUserWeightDisplay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        tools:text="Peso: 70kg"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/textViewUserSurgeriesDisplay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        tools:text="Cirurgias Recentes: Nenhuma"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/textViewUserHospitalizationsDisplay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        tools:text="Internações Recentes: Nenhuma"
+                        android:layout_marginBottom="16dp"/>
+
+                    <Button
+                        android:id="@+id/buttonClearRegistrationTestData"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_gravity="center_horizontal"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:backgroundTint="@color/text_secondary"
+                        android:text="Limpar Dados (Teste)"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </ScrollView>
 
@@ -141,12 +209,14 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:text="Nenhum paciente registrado. Redirecionando para o cadastro..."
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
         android:gravity="center"
         android:visibility="gone"
-    android:elevation="8dp"
-    android:background="?android:colorBackground"
-    tools:visibility="gone"/> <!-- 'gone' para preview, controlado por Kotlin -->
+        android:elevation="8dp"
+        android:background="?android:colorBackground"
+        tools:visibility="gone"/> <!-- 'gone' para preview, controlado por Kotlin -->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
