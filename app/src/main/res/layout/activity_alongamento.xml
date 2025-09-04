@@ -9,12 +9,12 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="🤸 Alongamento Ilustrado"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/teal_200"
         android:layout_gravity="center"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="24dp"
+        android:text="🤸 Alongamento Ilustrado"
+        android:textColor="?android:attr/colorPressedHighlight"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <ImageView
         android:id="@+id/imagemAlongamento"
@@ -56,11 +56,11 @@
             android:id="@+id/btnProximo"
             android:layout_width="0dp"
             android:layout_height="64dp"
-            android:layout_weight="1"
-            android:text="Próximo →"
-            android:textSize="16sp"
             android:layout_marginStart="8dp"
-            android:backgroundTint="@color/teal_200" />
+            android:layout_weight="1"
+            android:backgroundTint="?android:attr/colorPressedHighlight"
+            android:text="Próximo →"
+            android:textSize="16sp" />
 
     </LinearLayout>
 

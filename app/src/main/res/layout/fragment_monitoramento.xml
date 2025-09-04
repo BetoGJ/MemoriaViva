@@ -19,17 +19,17 @@
         android:id="@+id/txtStatusMonitoramento"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:text="Status: Aguardando permissões..."
-        android:textSize="16sp"
-        android:layout_marginBottom="16dp"/>
+        android:textSize="34sp" />
 
     <TextView
         android:id="@+id/txtUltimaLocalizacao"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:text="Última localização: --"
-        android:textSize="14sp"
-        android:layout_marginBottom="16dp"/>
+        android:textSize="34sp" />
 
     <Button
         android:id="@+id/btnIniciarMonitoramento"

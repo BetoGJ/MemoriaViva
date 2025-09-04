@@ -18,11 +18,11 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Exporte seus dados para transferir para outro celular ou faça backup de segurança."
-        android:textSize="16sp"
         android:layout_marginBottom="24dp"
+        android:text="Exporte seus dados para transferir para outro celular ou faça backup de segurança."
         android:textAlignment="center"
-        android:textColor="@android:color/darker_gray" />
+        android:textColor="@color/black"
+        android:textSize="22sp" />
 
     <Button
         android:id="@+id/buttonExport"
@@ -37,28 +37,28 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Importe dados de outro celular ou restaure um backup anterior."
-        android:textSize="16sp"
         android:layout_marginBottom="24dp"
+        android:text="Importe dados de outro celular ou restaure um backup anterior."
         android:textAlignment="center"
-        android:textColor="@android:color/darker_gray" />
+        android:textColor="@color/black"
+        android:textSize="22sp" />
 
     <Button
         android:id="@+id/buttonImport"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Importar Dados"
-        android:textSize="18sp"
+        android:backgroundTint="?android:attr/colorPressedHighlight"
         android:padding="16dp"
-        android:backgroundTint="@color/design_default_color_secondary" />
+        android:text="Importar Dados"
+        android:textSize="18sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="⚠️ Atenção: A importação substituirá todos os dados atuais."
-        android:textSize="14sp"
         android:layout_marginTop="24dp"
+        android:text="⚠️ Atenção: A importação substituirá todos os dados atuais."
         android:textAlignment="center"
-        android:textColor="@android:color/holo_orange_dark" />
+        android:textColor="@android:color/holo_orange_dark"
+        android:textSize="28sp" />
 
 </LinearLayout>
