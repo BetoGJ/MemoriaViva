@@ -17,7 +17,7 @@
             android:id="@+id/textViewFoodName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="24sp"
             android:textStyle="bold"
             tools:text="Nome do Alimento" />
 
@@ -25,14 +25,14 @@
             android:id="@+id/textViewPortion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="20sp"
             tools:text="Porção: 100g" />
 
         <TextView
             android:id="@+id/textViewMealTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="20sp"
             android:textStyle="italic"
             tools:text="Horário: Café da Manhã" />
     </LinearLayout>
