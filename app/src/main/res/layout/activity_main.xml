@@ -221,12 +221,13 @@
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <!-- Navigation Drawer View (Side Menu) -->
-<com.google.android.material.navigation.NavigationView
-android:id="@+id/nav_view_side"
-android:layout_width="wrap_content"
-android:layout_height="match_parent"
-android:layout_gravity="start"
-android:fitsSystemWindows="true"
-app:menu="@menu/sidemenu" /> <!-- SEU MENU LATERAL (sidemenu.xml) -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view_side"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_main"
+        app:menu="@menu/sidemenu" />
 
     </androidx.drawerlayout.widget.DrawerLayout>

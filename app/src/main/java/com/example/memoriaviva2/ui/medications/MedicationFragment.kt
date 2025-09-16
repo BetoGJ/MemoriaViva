@@ -1,6 +1,7 @@
 package com.example.memoriaviva2.ui.medications
 
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,11 +14,13 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.memoriaviva2.R
+import com.example.memoriaviva2.RoutineReportActivity
 import com.example.memoriaviva2.ui.backup.Remedio
 
 class MedicationFragment : Fragment() {
 
     private lateinit var btnAddMedication: Button
+    private lateinit var btnShowReport: Button
     private lateinit var rvMedications: RecyclerView
     private lateinit var adapter: MedicationAdapter
     private lateinit var repository: MedicationRepository
@@ -31,10 +34,11 @@ class MedicationFragment : Fragment() {
         val view = inflater.inflate(R.layout.simple_routine_layout, container, false)
         
         btnAddMedication = view.findViewById(R.id.btn_add_activity)
+        btnShowReport = view.findViewById(R.id.btn_show_report)
         rvMedications = view.findViewById(R.id.rv_activities)
         
         btnAddMedication.text = "Adicionar Remédio"
-        view.findViewById<Button>(R.id.btn_show_report).visibility = View.GONE
+        btnShowReport.text = "Ver Relatório"
         
         return view
     }
@@ -48,6 +52,11 @@ class MedicationFragment : Fragment() {
         
         btnAddMedication.setOnClickListener {
             showAddMedicationDialog()
+        }
+        
+        btnShowReport.setOnClickListener {
+            val intent = Intent(requireContext(), RoutineReportActivity::class.java)
+            startActivity(intent)
         }
     }
 

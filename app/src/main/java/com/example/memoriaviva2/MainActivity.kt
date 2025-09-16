@@ -64,38 +64,55 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        Log.d(TAG, "onCreate: View da MainActivity inflada.")
+        
+        try {
+            // Log device information for debugging
+            DeviceCompatibilityHelper.logDeviceInfo()
+            
+            setContentView(R.layout.activity_main)
+            Log.d(TAG, "onCreate: View da MainActivity inflada.")
 
-        sharedPreferences = getSharedPreferences(AppPreferencesKeys.PREFS_USER_DATA, Context.MODE_PRIVATE)
-
-        initializeViews()
-        Log.d(TAG, "onCreate: Views de UI inicializadas.")
-
-        // A configuração da navegação deve ocorrer APÓS initializeViews
-        // e idealmente ANTES de checkUserRegistrationStatusAndSetupUI se a UI depende dela.
-        // No entanto, a lógica de setupNavigation em si não precisa do estado de registro,
-        // mas a UI que ela controla (toolbar, menus) será mostrada/escondida depois.
-        setupNavigation()
-        Log.d(TAG, "onCreate: Navegação principal configurada.")
-
-        registrationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            Log.d(TAG, "onActivityResult: Retorno da RegistrationActivity com resultado: ${result.resultCode}")
-            if (result.resultCode == Activity.RESULT_OK) {
-                Log.i(TAG, "onActivityResult: Registro do usuário bem-sucedido.")
-                // Importante: Após o registro, configure a UI para o estado registrado
-                sharedPreferences.edit().putBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, true).apply() // Garanta que o estado seja salvo
-            } else {
-                Log.w(TAG, "onActivityResult: Registro do usuário cancelado ou falhou.")
+            // Initialize SharedPreferences with error handling
+            sharedPreferences = try {
+                getSharedPreferences(AppPreferencesKeys.PREFS_USER_DATA, Context.MODE_PRIVATE)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error initializing SharedPreferences", e)
+                // Fallback to default preferences
+                getSharedPreferences("default_prefs", Context.MODE_PRIVATE)
             }
-            // Sempre reavalie a UI após o retorno da RegistrationActivity
-            checkUserRegistrationStatusAndSetupUI()
-        }
-        Log.d(TAG, "onCreate: ActivityResultLauncher para registro configurado.")
 
-        // Verifica o status do usuário e configura a UI de acordo
-        checkUserRegistrationStatusAndSetupUI()
-        Log.i(TAG, "onCreate: MainActivity totalmente inicializada.")
+            initializeViews()
+            Log.d(TAG, "onCreate: Views de UI inicializadas.")
+
+            setupNavigation()
+            Log.d(TAG, "onCreate: Navegação principal configurada.")
+
+            registrationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                Log.d(TAG, "onActivityResult: Retorno da RegistrationActivity com resultado: ${result.resultCode}")
+                if (result.resultCode == Activity.RESULT_OK) {
+                    Log.i(TAG, "onActivityResult: Registro do usuário bem-sucedido.")
+                    // Small delay to ensure data is written
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        checkUserRegistrationStatusAndSetupUI()
+                    }, 100)
+                } else {
+                    Log.w(TAG, "onActivityResult: Registro do usuário cancelado ou falhou.")
+                    checkUserRegistrationStatusAndSetupUI()
+                }
+            }
+            Log.d(TAG, "onCreate: ActivityResultLauncher para registro configurado.")
+
+            // Small delay before checking registration
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                checkUserRegistrationStatusAndSetupUI()
+            }, 50)
+            
+            Log.i(TAG, "onCreate: MainActivity totalmente inicializada.")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Critical error in onCreate", e)
+            finish()
+        }
     }
 
     private fun initializeViews() {
@@ -158,12 +175,51 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun checkUserRegistrationStatusAndSetupUI() {
-        val isRegistered = sharedPreferences.getBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, false)
-        Log.d(TAG, "checkUserRegistrationStatusAndSetupUI: Usuário registrado? $isRegistered")
+        try {
+            Log.d(TAG, "checkUserRegistrationStatusAndSetupUI: Starting registration check")
+            
+            // Use safe SharedPreferences read
+            val isRegistered = DeviceCompatibilityHelper.safeSharedPreferencesRead(
+                this, AppPreferencesKeys.PREFS_USER_DATA, 
+                AppPreferencesKeys.KEY_IS_USER_REGISTERED, false
+            ) as Boolean
+            
+            val userName = DeviceCompatibilityHelper.safeSharedPreferencesRead(
+                this, AppPreferencesKeys.PREFS_USER_DATA,
+                AppPreferencesKeys.KEY_USER_NAME, ""
+            ) as String
+            
+            val userAge = DeviceCompatibilityHelper.safeSharedPreferencesRead(
+                this, AppPreferencesKeys.PREFS_USER_DATA,
+                AppPreferencesKeys.KEY_USER_AGE, 0
+            ) as Int
+            
+            // Triple check - user must be registered, have a name, and valid age
+            val isValidRegistration = isRegistered && userName.isNotEmpty() && userAge > 0
+            
+            Log.i(TAG, "Registration Status:")
+            Log.i(TAG, "  Registered: $isRegistered")
+            Log.i(TAG, "  Name: '$userName' (length: ${userName.length})")
+            Log.i(TAG, "  Age: $userAge")
+            Log.i(TAG, "  Valid: $isValidRegistration")
 
-        if (isRegistered) {
-            displayMainNavigationAndContentUI() // Nome mais descritivo
-        } else {
+            if (isValidRegistration) {
+                Log.i(TAG, "Valid registration found, showing main UI")
+                displayMainNavigationAndContentUI()
+            } else {
+                // Clear invalid registration data
+                if (isRegistered && (userName.isEmpty() || userAge <= 0)) {
+                    Log.w(TAG, "Invalid registration detected (registered=$isRegistered, name='$userName', age=$userAge), clearing data")
+                    clearRegistrationDataAndRestartCheck()
+                    return
+                }
+                Log.i(TAG, "No valid registration, redirecting to registration screen")
+                redirectToRegistrationScreen()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking registration status", e)
+            Log.e(TAG, "Exception details: ${e.message}")
+            Log.e(TAG, "Stack trace: ${e.stackTraceToString()}")
             redirectToRegistrationScreen()
         }
     }
@@ -209,25 +265,39 @@ class MainActivity : AppCompatActivity() {
     private fun redirectToRegistrationScreen() {
         Log.w(TAG, "redirectToRegistrationScreen: Usuário não registrado. Redirecionando.")
 
-        // --- ESCONDER COMPONENTES DE NAVEGAÇÃO E CONTEÚDO PRINCIPAL ---
-        toolbarMain.isVisible = false
-        supportActionBar?.hide()
-
-        navHostContainer.isVisible = false
-        bottomNavView.isVisible = false
-        scrollViewUserInfo.isVisible = false // Esconder também o scrollview de dados
-
-        textViewRedirecting.isVisible = true // Mostrar mensagem de redirecionamento
-
-        drawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED) // Bloquear drawer
-
         try {
-            val intent = Intent(this, RegistrationActivity::class.java) // Verifique se o nome da classe está correto
-            registrationLauncher.launch(intent)
-            Log.d(TAG, "redirectToRegistrationScreen: Intent para RegistrationActivity lançado.")
+            // --- ESCONDER COMPONENTES DE NAVEGAÇÃO E CONTEÚDO PRINCIPAL ---
+            toolbarMain.isVisible = false
+            supportActionBar?.hide()
+
+            navHostContainer.isVisible = false
+            bottomNavView.isVisible = false
+            scrollViewUserInfo.isVisible = false
+
+            textViewRedirecting.isVisible = true
+            textViewRedirecting.text = "Nenhum paciente registrado. Redirecionando para o cadastro..."
+
+            drawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+
+            // Small delay for UI updates before launching activity
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                try {
+                    val intent = Intent(this, RegistrationActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    registrationLauncher.launch(intent)
+                    Log.d(TAG, "redirectToRegistrationScreen: Intent para RegistrationActivity lançado.")
+                } catch (e: Exception) {
+                    Log.e(TAG, "redirectToRegistrationScreen: Falha ao iniciar RegistrationActivity.", e)
+                    textViewRedirecting.text = "Erro ao iniciar cadastro. Toque para tentar novamente."
+                    textViewRedirecting.setOnClickListener {
+                        redirectToRegistrationScreen()
+                    }
+                }
+            }, 100)
+            
         } catch (e: Exception) {
-            Log.e(TAG, "redirectToRegistrationScreen: Falha ao iniciar RegistrationActivity. Verifique o Manifest e o nome da classe.", e)
-            textViewRedirecting.text = getString(R.string.registration_activity_start_error)
+            Log.e(TAG, "redirectToRegistrationScreen: Erro geral", e)
+            textViewRedirecting.text = "Erro no sistema. Reinicie o aplicativo."
         }
     }
 

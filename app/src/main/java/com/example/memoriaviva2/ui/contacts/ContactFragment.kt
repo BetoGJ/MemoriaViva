@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.memoriaviva2.ui.contacts.EmergencyContact
 // Importe seu Adapter (você precisará criar um)
 // import com.example.memoriaviva2.ui.contacts.EmergencyContactAdapter
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+// Removed FloatingActionButton import
 import kotlin.text.isNotEmpty
 import kotlin.text.trim
 
@@ -27,7 +27,7 @@ class ContactFragment : Fragment() {
     private val contactViewModel: ContactViewModel by viewModels()
     private lateinit var contactsRecyclerView: RecyclerView
     private lateinit var contactsAdapter: EmergencyContactAdapter // Você precisará criar este adapter
-    private lateinit var fabAddContact: FloatingActionButton
+    private lateinit var btnAddContact: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,11 +37,11 @@ class ContactFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_contact, container, false) // Crie este layout
 
         contactsRecyclerView = view.findViewById(R.id.recycler_view_contacts)
-        fabAddContact = view.findViewById(R.id.fab_add_contact)
+        btnAddContact = view.findViewById(R.id.fab_add_contact)
 
         setupRecyclerView()
 
-        fabAddContact.setOnClickListener {
+        btnAddContact.setOnClickListener {
             showAddEditContactDialog(null) // null para adicionar novo contato
         }
 

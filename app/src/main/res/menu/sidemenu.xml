@@ -2,8 +2,39 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/item_1" android:title="1 - Dieta" />
-    <item android:id="@+id/item_2" android:title="2 - Rotina" />
-    <item android:id="@+id/item_3" android:title="3 - Informações" />
-    <item android:id="@+id/item_recreativa" android:title="4 - Recreativa" />
+    <group android:checkableBehavior="single">
+        <item 
+            android:id="@+id/item_1" 
+            android:title="🍎 Dieta"
+            android:icon="@android:drawable/ic_menu_agenda" />
+        <item 
+            android:id="@+id/item_2" 
+            android:title="⏰ Rotina"
+            android:icon="@android:drawable/ic_menu_recent_history" />
+        <item 
+            android:id="@+id/item_3" 
+            android:title="ℹ️ Informações"
+            android:icon="@android:drawable/ic_menu_info_details" />
+        <item 
+            android:id="@+id/item_recreativa" 
+            android:title="🎮 Recreativa"
+            android:icon="@android:drawable/ic_media_play" />
+    </group>
+    
+    <item android:title="Seções Recreativa" android:visible="false">
+        <menu>
+            <item 
+                android:id="@+id/sub_jogos"
+                android:title="  🎮 Jogos"
+                android:icon="@android:drawable/ic_media_play" />
+            <item 
+                android:id="@+id/sub_bem_estar"
+                android:title="  🧘 Bem-estar"
+                android:icon="@android:drawable/ic_menu_compass" />
+            <item 
+                android:id="@+id/sub_rotina_divertida"
+                android:title="  ✨ Rotina Divertida"
+                android:icon="@android:drawable/ic_menu_gallery" />
+        </menu>
+    </item>
 </menu>

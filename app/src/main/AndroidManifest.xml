@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -54,9 +55,13 @@
     <activity android:name=".ui.recreativa.RespiracaoActivity" android:exported="false" />
     <activity android:name=".ui.recreativa.AlongamentoActivity" android:exported="false" />
     <activity android:name=".ui.recreativa.AlbumMemoriasActivity" android:exported="false" />
+    
+    <!-- Relatórios -->
+    <activity android:name=".RoutineReportActivity" android:exported="false" 
+        android:parentActivityName=".MainActivity" />
 
     <!-- Receivers -->
-    <receiver android:name=".NotificationReceiver" />
+    <receiver android:name=".NotificationReceiver" android:exported="false" />
     <receiver android:name=".ui.medications.MedicationAlarmReceiver" android:exported="false" />
 
 </application>

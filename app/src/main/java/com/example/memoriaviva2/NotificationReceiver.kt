@@ -19,6 +19,13 @@ class NotificationReceiver : BroadcastReceiver() {
             .setAutoCancel(true)
             .build()
 
-        NotificationManagerCompat.from(context).notify(1001, notificacao)
+        try {
+            val notificationManager = NotificationManagerCompat.from(context)
+            if (notificationManager.areNotificationsEnabled()) {
+                notificationManager.notify(1001, notificacao)
+            }
+        } catch (e: SecurityException) {
+            // Android 13+ notification permission not granted
+        }
     }
 }

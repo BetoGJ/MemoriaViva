@@ -28,36 +28,60 @@ class RegistrationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // NENHUMA CHAMADA PARA requestWindowFeature() ou supportRequestWindowFeature() aqui
-        setContentView(R.layout.activity_registration)
+        
+        try {
+            setContentView(R.layout.activity_registration)
 
-        // Inicialização da Toolbar
-        toolbarRegistration = findViewById(R.id.toolbarRegistration) // Usa o ID do XML
-        setSupportActionBar(toolbarRegistration)
-        // O título da Toolbar já é definido no XML (app:title="Cadastro do Paciente")
-        // Se quiser habilitar o botão "Up" (voltar) na Toolbar:
-        // supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        // supportActionBar?.setDisplayShowHomeEnabled(true)
+            // Initialize SharedPreferences with error handling
+            sharedPreferences = try {
+                getSharedPreferences(AppPreferencesKeys.PREFS_USER_DATA, Context.MODE_PRIVATE)
+            } catch (e: Exception) {
+                // Fallback to default preferences if there's an issue
+                getSharedPreferences("default_prefs", Context.MODE_PRIVATE)
+            }
 
+            // Check if already registered before showing UI
+            if (sharedPreferences.getBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, false)) {
+                Toast.makeText(this, "Usuário já cadastrado!", Toast.LENGTH_SHORT).show()
+                setResult(Activity.RESULT_OK)
+                finish()
+                return
+            }
 
-        sharedPreferences = getSharedPreferences(AppPreferencesKeys.PREFS_USER_DATA, Context.MODE_PRIVATE)
+            // Initialize toolbar
+            toolbarRegistration = findViewById(R.id.toolbarRegistration)
+            setSupportActionBar(toolbarRegistration)
 
-        textInputLayoutNameReg = findViewById(R.id.textInputLayoutNameReg)
-        editTextNameReg = findViewById(R.id.editTextNameReg)
-        textInputLayoutAgeReg = findViewById(R.id.textInputLayoutAgeReg)
-        editTextAgeReg = findViewById(R.id.editTextAgeReg)
-        textInputLayoutWeightReg = findViewById(R.id.textInputLayoutWeightReg)
-        editTextWeightReg = findViewById(R.id.editTextWeightReg)
-        editTextRecentSurgeriesReg = findViewById(R.id.editTextRecentSurgeriesReg)
-        editTextRecentHospitalizationsReg = findViewById(R.id.editTextRecentHospitalizationsReg)
-        buttonSaveRegistration = findViewById(R.id.buttonSaveRegistration)
+            // Initialize views with error handling
+            try {
+                textInputLayoutNameReg = findViewById(R.id.textInputLayoutNameReg)
+                editTextNameReg = findViewById(R.id.editTextNameReg)
+                textInputLayoutAgeReg = findViewById(R.id.textInputLayoutAgeReg)
+                editTextAgeReg = findViewById(R.id.editTextAgeReg)
+                textInputLayoutWeightReg = findViewById(R.id.textInputLayoutWeightReg)
+                editTextWeightReg = findViewById(R.id.editTextWeightReg)
+                editTextRecentSurgeriesReg = findViewById(R.id.editTextRecentSurgeriesReg)
+                editTextRecentHospitalizationsReg = findViewById(R.id.editTextRecentHospitalizationsReg)
+                buttonSaveRegistration = findViewById(R.id.buttonSaveRegistration)
 
-        buttonSaveRegistration.setOnClickListener {
-            validateAndSaveData()
+                buttonSaveRegistration.setOnClickListener {
+                    validateAndSaveData()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this, "Erro ao inicializar formulário", Toast.LENGTH_LONG).show()
+                finish()
+            }
+            
+        } catch (e: Exception) {
+            Toast.makeText(this, "Erro crítico na inicialização", Toast.LENGTH_LONG).show()
+            finish()
         }
     }
 
     private fun validateAndSaveData() {
+        // Disable button to prevent multiple clicks
+        buttonSaveRegistration.isEnabled = false
+        
         val name = editTextNameReg.text.toString().trim()
         val ageStr = editTextAgeReg.text.toString().trim()
         val weightStr = editTextWeightReg.text.toString().trim()
@@ -90,32 +114,33 @@ class RegistrationActivity : AppCompatActivity() {
         }
 
         if (!isValid) {
+            buttonSaveRegistration.isEnabled = true // Re-enable button
             Toast.makeText(this, "Por favor, corrija os campos marcados.", Toast.LENGTH_LONG).show()
             return
         }
 
-        // Verificar se já está registrado
-        if (sharedPreferences.getBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, false)) {
-            Toast.makeText(this, "Usuário já cadastrado!", Toast.LENGTH_SHORT).show()
-            setResult(Activity.RESULT_OK)
-            finish()
-            return
+        // Use DeviceCompatibilityHelper for safer SharedPreferences operations
+        val success = DeviceCompatibilityHelper.safeSharedPreferencesWrite(sharedPreferences) { editor ->
+            editor.putBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, true)
+            editor.putString(AppPreferencesKeys.KEY_USER_NAME, name)
+            editor.putInt(AppPreferencesKeys.KEY_USER_AGE, age!!)
+            editor.putFloat(AppPreferencesKeys.KEY_USER_WEIGHT, weight!!.toFloat())
+            editor.putString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, surgeries)
+            editor.putString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, hospitalizations)
         }
         
-        // Salvar dados
-        sharedPreferences.edit().apply {
-            putBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, true)
-            putString(AppPreferencesKeys.KEY_USER_NAME, name)
-            putInt(AppPreferencesKeys.KEY_USER_AGE, age!!)
-            putFloat(AppPreferencesKeys.KEY_USER_WEIGHT, weight!!.toFloat())
-            putString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, surgeries)
-            putString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, hospitalizations)
-            apply()
+        if (success) {
+            Toast.makeText(this, "Paciente registrado com sucesso!", Toast.LENGTH_SHORT).show()
+            
+            // Small delay before finishing to ensure data is written
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                setResult(Activity.RESULT_OK)
+                finish()
+            }, 50)
+        } else {
+            buttonSaveRegistration.isEnabled = true // Re-enable button on error
+            Toast.makeText(this, "Erro ao salvar dados. Tente novamente.", Toast.LENGTH_LONG).show()
         }
-        
-        Toast.makeText(this, "Paciente registrado com sucesso!", Toast.LENGTH_SHORT).show()
-        setResult(Activity.RESULT_OK)
-        finish()
     }
 
     // Se você habilitou o botão "Up" com setDisplayHomeAsUpEnabled(true)

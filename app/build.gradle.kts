@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.memoriaviva2"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.memoriaviva2"

@@ -82,12 +82,18 @@ class MonitoramentoFragment : Fragment() {
             30000 // 30 segundos para economizar bateria
         ).build()
 
-        locationCallback?.let { callback ->
-            fusedLocationClient?.requestLocationUpdates(
-                locationRequest,
-                callback,
-                Looper.getMainLooper()
-            )
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            locationCallback?.let { callback ->
+                fusedLocationClient?.requestLocationUpdates(
+                    locationRequest,
+                    callback,
+                    Looper.getMainLooper()
+                )
+            }
         }
     }
 

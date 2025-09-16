@@ -233,14 +233,18 @@ class RastreioFragment : Fragment() {
                 "package" to "com.example.memoriaviva2"
             )
             
-            database.child("localiza_nois").child(code).setValue(locationData)
-                .addOnSuccessListener {
-                    // Confirma envio das coordenadas reais
-                    Toast.makeText(context, "GPS: ${String.format("%.6f", lat)}, ${String.format("%.6f", lng)}", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener { error ->
-                    Toast.makeText(context, "Erro Firebase: ${error.message}", Toast.LENGTH_SHORT).show()
-                }
+            try {
+                database.child("localiza_nois").child(code).setValue(locationData)
+                    .addOnSuccessListener {
+                        // Confirma envio das coordenadas reais
+                        Toast.makeText(context, "GPS: ${String.format("%.6f", lat)}, ${String.format("%.6f", lng)}", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { error ->
+                        Toast.makeText(context, "Erro Firebase: ${error.message}", Toast.LENGTH_SHORT).show()
+                    }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Erro de conexão: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
     
@@ -473,8 +477,16 @@ class RastreioFragment : Fragment() {
         
         // Vibração se disponível
         try {
-            val vibrator = requireContext().getSystemService(android.content.Context.VIBRATOR_SERVICE) as android.os.Vibrator
-            vibrator.vibrate(1000) // 1 segundo
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                val vibratorManager = requireContext().getSystemService(android.content.Context.VIBRATOR_MANAGER_SERVICE) as android.os.VibratorManager
+                val vibrator = vibratorManager.defaultVibrator
+                vibrator.vibrate(android.os.VibrationEffect.createOneShot(1000, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                val vibrator = requireContext().getSystemService(android.content.Context.VIBRATOR_SERVICE) as android.os.Vibrator
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(1000)
+            }
         } catch (e: Exception) {
             // Ignora se não tiver vibrador
         }
@@ -565,10 +577,14 @@ class RastreioFragment : Fragment() {
     }
 
     private fun requestLocationPermission() {
-        requestPermissions(
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-            LOCATION_PERMISSION_REQUEST_CODE
-        )
+        val permissions = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        
+        // Android 13+ notification permission
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        
+        requestPermissions(permissions.toTypedArray(), LOCATION_PERMISSION_REQUEST_CODE)
     }
 
     override fun onRequestPermissionsResult(
