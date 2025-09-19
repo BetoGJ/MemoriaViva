@@ -18,19 +18,58 @@
             android:text="Tela de Rastreio"
             android:textSize="34sp"
             android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/btnTutor"
+            
+        <LinearLayout
+            android:id="@+id/layoutDistanceControl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Entrar como Tutor"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Distância de Alarme:"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_gravity="center"/>
+                
+            <TextView
+                android:id="@+id/txtDistanceValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Distância configurada: 100m"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"/>
+            
+            <Button
+                android:id="@+id/btnStopAlarm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Parar Alarme"
+                android:textSize="16sp"
+                android:visibility="gone"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#F44336"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnCuidador"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Entrar como Cuidador"
             android:textSize="24sp" />
 
         <Button
-            android:id="@+id/btnMonitorado"
+            android:id="@+id/btnPaciente"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Entrar como Monitorado"
+            android:text="Entrar como Paciente"
             android:textSize="24sp" />
 
     </LinearLayout>
@@ -46,11 +85,35 @@
         android:textColor="#D32F2F"
         android:textSize="16sp" />
 
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/mapView"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="#F5F5F5">
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DISTÂNCIA ATUAL"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#666666"
+            android:layout_marginBottom="16dp"/>
+            
+        <TextView
+            android:id="@+id/txtDistanceDisplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-- metros"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            android:textColor="#2E7D32"
+            android:gravity="center"/>
+    </LinearLayout>
+
+
 
     <TextView
         android:id="@+id/txtLocationInfo"

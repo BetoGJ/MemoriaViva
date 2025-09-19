@@ -22,7 +22,7 @@
     <string name="location_error">Erro ao obter localização</string>
     <string name="permission_granted">Permissão concedida</string>
     <string name="stop_sharing">Parar Compartilhamento</string>
-    <string name="start_monitoring">Entrar como Monitorado</string>
+    <string name="start_monitoring">Entrar como Paciente</string>
     <string name="location_sharing_enabled">Compartilhamento de localização ativado</string>
     <string name="location_sharing_disabled">Compartilhamento de localização desativado</string>
 </resources>

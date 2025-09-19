@@ -40,11 +40,21 @@
         android:id="@+id/buttonExport"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Exportar Dados"
+        android:text="Exportar Dados (JSON)"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp"
+        android:padding="16dp"
+        android:backgroundTint="@color/design_default_color_primary" />
+        
+    <Button
+        android:id="@+id/buttonExportPdf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Exportar Relatório (PDF)"
         android:textSize="18sp"
         android:layout_marginBottom="16dp"
         android:padding="16dp"
-        android:backgroundTint="@color/design_default_color_primary" />
+        android:backgroundTint="@color/purple_500" />
 
     <TextView
         android:layout_width="match_parent"

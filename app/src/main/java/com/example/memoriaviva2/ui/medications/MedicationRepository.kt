@@ -49,4 +49,8 @@ class MedicationRepository(context: Context) {
             saveMedications(medications)
         }
     }
+    
+    fun getAllMedications(): List<Remedio> {
+        return getMedications()
+    }
 }

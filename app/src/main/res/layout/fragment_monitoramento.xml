@@ -9,7 +9,7 @@
         android:id="@+id/txtTituloMonitoramento"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Monitoramento de Localização"
+        android:text="Rastreamento de Localização"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_gravity="center"
@@ -35,14 +35,14 @@
         android:id="@+id/btnIniciarMonitoramento"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Iniciar Monitoramento"
+        android:text="Iniciar Rastreamento"
         android:layout_marginBottom="8dp"/>
 
     <Button
         android:id="@+id/btnPararMonitoramento"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Parar Monitoramento"
+        android:text="Parar Rastreamento"
         android:enabled="false"/>
 
 </LinearLayout>

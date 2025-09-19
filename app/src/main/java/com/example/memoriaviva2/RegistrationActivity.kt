@@ -14,6 +14,7 @@ import com.google.android.material.textfield.TextInputLayout
 class RegistrationActivity : AppCompatActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
+    private var isEditMode = false
 
     private lateinit var toolbarRegistration: Toolbar // View para a Toolbar
     private lateinit var textInputLayoutNameReg: TextInputLayout
@@ -40,8 +41,11 @@ class RegistrationActivity : AppCompatActivity() {
                 getSharedPreferences("default_prefs", Context.MODE_PRIVATE)
             }
 
-            // Check if already registered before showing UI
-            if (sharedPreferences.getBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, false)) {
+            // Check if this is edit mode
+            isEditMode = intent.getBooleanExtra("EDIT_MODE", false)
+            
+            // If not edit mode and already registered, finish
+            if (!isEditMode && sharedPreferences.getBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, false)) {
                 Toast.makeText(this, "Usuário já cadastrado!", Toast.LENGTH_SHORT).show()
                 setResult(Activity.RESULT_OK)
                 finish()
@@ -51,6 +55,11 @@ class RegistrationActivity : AppCompatActivity() {
             // Initialize toolbar
             toolbarRegistration = findViewById(R.id.toolbarRegistration)
             setSupportActionBar(toolbarRegistration)
+            
+            // Set title based on mode
+            if (isEditMode) {
+                toolbarRegistration.title = "Editar Cadastro do Paciente"
+            }
 
             // Initialize views with error handling
             try {
@@ -64,6 +73,12 @@ class RegistrationActivity : AppCompatActivity() {
                 editTextRecentHospitalizationsReg = findViewById(R.id.editTextRecentHospitalizationsReg)
                 buttonSaveRegistration = findViewById(R.id.buttonSaveRegistration)
 
+                // Set button text based on mode
+                if (isEditMode) {
+                    buttonSaveRegistration.text = "ATUALIZAR CADASTRO"
+                    loadExistingData()
+                }
+                
                 buttonSaveRegistration.setOnClickListener {
                     validateAndSaveData()
                 }
@@ -130,7 +145,8 @@ class RegistrationActivity : AppCompatActivity() {
         }
         
         if (success) {
-            Toast.makeText(this, "Paciente registrado com sucesso!", Toast.LENGTH_SHORT).show()
+            val message = if (isEditMode) "Dados atualizados com sucesso!" else "Paciente registrado com sucesso!"
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
             
             // Small delay before finishing to ensure data is written
             android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
@@ -140,6 +156,24 @@ class RegistrationActivity : AppCompatActivity() {
         } else {
             buttonSaveRegistration.isEnabled = true // Re-enable button on error
             Toast.makeText(this, "Erro ao salvar dados. Tente novamente.", Toast.LENGTH_LONG).show()
+        }
+    }
+    
+    private fun loadExistingData() {
+        try {
+            val name = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_NAME, "")
+            val age = sharedPreferences.getInt(AppPreferencesKeys.KEY_USER_AGE, 0)
+            val weight = sharedPreferences.getFloat(AppPreferencesKeys.KEY_USER_WEIGHT, 0f)
+            val surgeries = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, "")
+            val hospitalizations = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, "")
+            
+            editTextNameReg.setText(name)
+            if (age > 0) editTextAgeReg.setText(age.toString())
+            if (weight > 0) editTextWeightReg.setText(weight.toString())
+            editTextRecentSurgeriesReg.setText(surgeries)
+            editTextRecentHospitalizationsReg.setText(hospitalizations)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Erro ao carregar dados existentes", Toast.LENGTH_SHORT).show()
         }
     }
 

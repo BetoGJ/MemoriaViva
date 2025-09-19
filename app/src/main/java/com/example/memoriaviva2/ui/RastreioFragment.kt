@@ -18,8 +18,7 @@ import android.content.Context
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.google.android.gms.maps.*
-import com.google.android.gms.maps.model.*
+
 
 class RastreioFragment : Fragment() {
 
@@ -30,11 +29,12 @@ class RastreioFragment : Fragment() {
     private var database: DatabaseReference = Firebase.database.reference
     private var currentTrackingCode: String? = null
     private var locationListener: ValueEventListener? = null
-    private var tutorLocation: android.location.Location? = null
-    private var monitoradoLocation: android.location.Location? = null
-    private var googleMap: GoogleMap? = null
-    private var tutorMarker: Marker? = null
-    private var monitoradoMarker: Marker? = null
+    private var cuidadorLocation: android.location.Location? = null
+    private var pacienteLocation: android.location.Location? = null
+
+    private var alarmDistance = 100f // metros
+    private var isAlarmActive = false
+    private var isCuidadorMode = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,24 +48,28 @@ class RastreioFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         setupButtons()
-        setupMap(savedInstanceState)
+
     }
     
-    private fun setupMap(savedInstanceState: Bundle?) {
-        binding.mapView.onCreate(savedInstanceState)
-        binding.mapView.getMapAsync { map ->
-            googleMap = map
-            map.uiSettings.isZoomControlsEnabled = true
-        }
-    }
+
 
     private fun setupButtons() {
-        binding.btnTutor.setOnClickListener {
-            showTutorCodeDialog()
+        binding.btnCuidador.setOnClickListener {
+            isCuidadorMode = true
+            binding.layoutDistanceControl.visibility = android.view.View.VISIBLE
+            showDistanceDialog()
         }
 
-        binding.btnMonitorado.setOnClickListener {
+        binding.btnPaciente.setOnClickListener {
+            isCuidadorMode = false
+            binding.layoutDistanceControl.visibility = android.view.View.GONE
             toggleLocationSharing()
+        }
+        
+
+        
+        binding.btnStopAlarm.setOnClickListener {
+            stopAlarm()
         }
     }
 
@@ -97,11 +101,17 @@ class RastreioFragment : Fragment() {
             }
         }
         
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+            )
+        }
         
         // Timeout de 8 segundos
         android.os.Handler(Looper.getMainLooper()).postDelayed({
@@ -146,7 +156,7 @@ class RastreioFragment : Fragment() {
         input.filters = arrayOf(android.text.InputFilter.LengthFilter(4))
         
         builder.setTitle("Chave de Rastreamento")
-            .setMessage("Digite a chave de 4 caracteres fornecida pelo tutor")
+            .setMessage("Digite a chave de 4 caracteres fornecida pelo cuidador")
             .setView(input)
             .setPositiveButton("Conectar") { _, _ ->
                 val key = input.text.toString().trim().uppercase()
@@ -163,11 +173,11 @@ class RastreioFragment : Fragment() {
     private fun startTracking(key: String) {
         currentTrackingCode = key
         isTracking = true
-        binding.btnMonitorado.text = getString(R.string.stop_sharing)
+        binding.btnPaciente.text = getString(R.string.stop_sharing)
         Toast.makeText(context, "Compartilhando localização: $key", Toast.LENGTH_SHORT).show()
         
         startLocationSharing()
-        showOwnLocationOnMap()
+        binding.txtDistanceDisplay.text = "Compartilhando..."
     }
     
     private fun startLocationSharing() {
@@ -190,25 +200,31 @@ class RastreioFragment : Fragment() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.lastLocation?.let { location ->
                     // Verifica se a localização é válida e precisa
-                    if (location.accuracy <= 20) { // Precisão de até 20 metros
+                    if (location.accuracy <= 50) { // Precisão de até 50 metros (mais tolerante)
                         sendLocationToFirebase(location)
-                        // Atualiza próprio mapa em tempo real
-                        showLocationOnMap(location.latitude, location.longitude, "Minha Localização", true)
-                        // Atualiza informações de localização
+                        android.util.Log.d("PacienteGPS", "Enviando localização: ${location.latitude}, ${location.longitude}")
                         showLocationConnected(location.latitude, location.longitude, System.currentTimeMillis(), "GPS Ativo")
                     } else {
                         // GPS ainda não está preciso o suficiente
-                        Toast.makeText(context, "Aguardando GPS mais preciso...", Toast.LENGTH_SHORT).show()
+                        android.util.Log.d("PacienteGPS", "GPS impreciso: ${location.accuracy}m")
+                        // Envia mesmo assim para teste
+                        sendLocationToFirebase(location)
                     }
                 }
             }
         }
         
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+            )
+        }
         
         Toast.makeText(context, "Rastreamento em tempo real ativo", Toast.LENGTH_SHORT).show()
     }
@@ -250,23 +266,47 @@ class RastreioFragment : Fragment() {
     
     private fun stopTracking() {
         isTracking = false
-        binding.btnMonitorado.text = getString(R.string.start_monitoring)
+        binding.btnPaciente.text = getString(R.string.start_monitoring)
         Toast.makeText(context, getString(R.string.location_sharing_disabled), Toast.LENGTH_SHORT).show()
     }
     
-    private fun showTutorCodeDialog() {
+    private fun showDistanceDialog() {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        val input = android.widget.EditText(requireContext())
+        input.hint = "Digite a distância em metros (ex: 50)"
+        input.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        input.setText(alarmDistance.toInt().toString())
+        
+        builder.setTitle("Distância de Alarme")
+            .setMessage("Defina a distância máxima permitida:")
+            .setView(input)
+            .setPositiveButton("Confirmar") { _, _ ->
+                val distance = input.text.toString().toIntOrNull()
+                if (distance != null && distance > 0) {
+                    alarmDistance = distance.toFloat()
+                    binding.txtDistanceValue.text = "Distância configurada: ${distance}m"
+                    showCuidadorCodeDialog()
+                } else {
+                    Toast.makeText(context, "Digite uma distância válida", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+    
+    private fun showCuidadorCodeDialog() {
         val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
         val input = android.widget.EditText(requireContext())
         input.hint = "Digite 4 caracteres"
         input.filters = arrayOf(android.text.InputFilter.LengthFilter(4))
         
-        builder.setTitle("Código do Monitorado")
-            .setMessage("Digite o código de 4 caracteres do monitorado")
+        builder.setTitle("Código do Paciente")
+            .setMessage("Digite o código de 4 caracteres do paciente")
             .setView(input)
             .setPositiveButton("Rastrear") { _, _ ->
                 val code = input.text.toString().trim().uppercase()
                 if (validateCode(code)) {
-                    startTutorTracking(code)
+                    startCuidadorTracking(code)
                 } else {
                     Toast.makeText(context, "Código deve ter exatamente 4 caracteres", Toast.LENGTH_SHORT).show()
                 }
@@ -279,14 +319,21 @@ class RastreioFragment : Fragment() {
         return code.length == 4 && code.matches(Regex("[A-Z0-9]{4}"))
     }
     
-    private fun startTutorTracking(code: String) {
+    private fun startCuidadorTracking(code: String) {
+        // Para tracking anterior se existir
+        locationListener?.let { listener ->
+            currentTrackingCode?.let { oldCode ->
+                database.child("localiza_nois").child(oldCode).removeEventListener(listener)
+            }
+        }
+        
         currentTrackingCode = code
-        binding.txtStatus.text = "Conectando ao monitorado: $code"
+        binding.txtStatus.text = "Conectando ao paciente: $code"
         binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#FFF3E0"))
         binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#F57C00"))
         
-        // Inicia rastreamento da própria localização do tutor
-        startTutorLocationTracking()
+        // Inicia rastreamento da própria localização do cuidador
+        startCuidadorLocationTracking()
         
         // Remove listener anterior se existir
         locationListener?.let { 
@@ -302,15 +349,14 @@ class RastreioFragment : Fragment() {
                     val timestamp = snapshot.child("timestamp").getValue(Long::class.java)
                     
                     if (latitude != null && longitude != null) {
-                        // Atualiza localização do monitorado
-                        monitoradoLocation = android.location.Location("").apply {
+                        // Atualiza localização do paciente
+                        pacienteLocation = android.location.Location("").apply {
                             this.latitude = latitude
                             this.longitude = longitude
                         }
                         
-                        showLocationConnected(latitude, longitude, timestamp, "Monitorado: $code")
-                        // Usa coordenadas do Firebase para mostrar no mapa integrado
-                        showFirebaseLocationOnMap(latitude, longitude)
+                        android.util.Log.d("PacienteLocation", "Nova localização: $latitude, $longitude")
+                        showLocationConnected(latitude, longitude, timestamp, "Paciente: $code")
                         checkGeofence()
                     } else {
                         showLocationNotAvailable()
@@ -367,7 +413,6 @@ class RastreioFragment : Fragment() {
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 showLocationConnected(location.latitude, location.longitude, System.currentTimeMillis(), "Minha Localização")
-                showLocationOnMap(location.latitude, location.longitude, "Minha Localização", true)
             } else {
                 requestCurrentLocationForMap()
             }
@@ -385,16 +430,21 @@ class RastreioFragment : Fragment() {
                 locationResult.lastLocation?.let { location ->
                     fusedLocationClient.removeLocationUpdates(this)
                     showLocationConnected(location.latitude, location.longitude, System.currentTimeMillis(), "Minha Localização")
-                    showLocationOnMap(location.latitude, location.longitude, "Minha Localização", true)
                 }
             }
         }
         
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+            )
+        }
     }
     
     private fun openExternalMap(latitude: Double, longitude: Double, title: String) {
@@ -405,59 +455,78 @@ class RastreioFragment : Fragment() {
         }
     }
     
-    private fun startTutorLocationTracking() {
+    private fun startCuidadorLocationTracking() {
         if (!checkLocationPermission()) return
         
-        // Tutor também precisa de tracking frequente para geofencing preciso
+        // Cuidador também precisa de tracking frequente para geofencing preciso
         val locationRequest = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY,
-            5000 // 5 segundos para geofencing rápido
-        ).build()
+            2000 // 2 segundos para geofencing rápido
+        ).setMinUpdateIntervalMillis(1000)
+         .setMinUpdateDistanceMeters(1f)
+         .build()
         
-        val tutorCallback = object : LocationCallback() {
+        val cuidadorCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.lastLocation?.let { location ->
-                    tutorLocation = location
-                    // Adiciona marcador azul do tutor no mapa
-                    addTutorMarkerToMap(location.latitude, location.longitude)
+                    cuidadorLocation = location
+                    android.util.Log.d("CuidadorLocation", "Nova localização: ${location.latitude}, ${location.longitude}")
                     checkGeofence()
                 }
             }
         }
         
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            tutorCallback,
-            Looper.getMainLooper()
-        )
-    }
-    
-    private fun addTutorMarkerToMap(latitude: Double, longitude: Double) {
-        googleMap?.let { map ->
-            val position = LatLng(latitude, longitude)
-            
-            tutorMarker?.remove()
-            tutorMarker = map.addMarker(
-                MarkerOptions()
-                    .position(position)
-                    .title("Tutor (Você)")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                cuidadorCallback,
+                Looper.getMainLooper()
             )
         }
     }
     
+
+    
     private fun checkGeofence() {
-        val tutor = tutorLocation
-        val monitorado = monitoradoLocation
+        if (!isCuidadorMode) return // Só verifica no modo cuidador
         
-        if (tutor != null && monitorado != null) {
-            val distance = tutor.distanceTo(monitorado)
+        val cuidador = cuidadorLocation
+        val paciente = pacienteLocation
+        
+        android.util.Log.d("Geofence", "Verificando geofence - Cuidador: $cuidador, Paciente: $paciente")
+        
+        if (cuidador != null && paciente != null) {
+            val distance = cuidador.distanceTo(paciente)
             
-            if (distance > 100) { // 100 metros - ALARME
+            // Debug: Log da distância atual vs limite
+            android.util.Log.d("Geofence", "Distância atual: ${distance}m, Limite: ${alarmDistance}m")
+            android.util.Log.d("Geofence", "Cuidador: ${cuidador.latitude}, ${cuidador.longitude}")
+            android.util.Log.d("Geofence", "Paciente: ${paciente.latitude}, ${paciente.longitude}")
+            
+            if (distance > alarmDistance && !isAlarmActive) {
                 triggerGeofenceAlarm(distance)
+            } else if (distance <= alarmDistance && isAlarmActive) {
+                stopAlarm()
+            }
+            
+            // Atualiza display de distância
+            val distanceText = String.format("%.0f metros", distance)
+            binding.txtDistanceDisplay.text = distanceText
+            
+            // Muda cor baseado na distância
+            if (distance > alarmDistance) {
+                binding.txtDistanceDisplay.setTextColor(android.graphics.Color.parseColor("#F44336")) // Vermelho
             } else {
+                binding.txtDistanceDisplay.setTextColor(android.graphics.Color.parseColor("#2E7D32")) // Verde
+            }
+            
+            if (!isAlarmActive) {
                 // Dentro da área segura
-                binding.txtStatus.text = "CONECTADO - DISTÂNCIA: ${String.format("%.0f", distance)}m"
+                binding.txtStatus.text = "CONECTADO (Limite: ${alarmDistance.toInt()}m)"
                 binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#E8F5E8"))
                 binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#2E7D32"))
             }
@@ -465,10 +534,13 @@ class RastreioFragment : Fragment() {
     }
     
     private fun triggerGeofenceAlarm(distance: Float) {
+        isAlarmActive = true
+        binding.btnStopAlarm.visibility = android.view.View.VISIBLE
+        
         val distanceText = String.format("%.0f metros", distance)
         
         // ALARME VISUAL E SONORO
-        Toast.makeText(context, "🚨 ALARME: Monitorado muito longe! $distanceText", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "🚨 ALARME: Paciente muito longe! $distanceText", Toast.LENGTH_LONG).show()
         
         // Status vermelho piscante
         binding.txtStatus.text = "🚨 ALARME - $distanceText"
@@ -492,78 +564,28 @@ class RastreioFragment : Fragment() {
         }
     }
     
-    private fun showLocationOnMap(latitude: Double, longitude: Double, title: String, isOwnLocation: Boolean = false) {
-        googleMap?.let { map ->
-            val position = LatLng(latitude, longitude)
-            
-            if (isOwnLocation) {
-                // Monitorado vendo sua própria localização
-                monitoradoMarker?.remove()
-                monitoradoMarker = map.addMarker(
-                    MarkerOptions()
-                        .position(position)
-                        .title("Você")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                )
-                // Segue o usuário em tempo real
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 17f))
-            } else {
-                // Tutor vendo localização do monitorado - atualização suave
-                monitoradoMarker?.remove()
-                monitoradoMarker = map.addMarker(
-                    MarkerOptions()
-                        .position(position)
-                        .title("👤 Monitorado")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                )
-                
-                // Mantém ambos os marcadores visíveis se possível
-                if (tutorLocation != null) {
-                    val tutorPos = LatLng(tutorLocation!!.latitude, tutorLocation!!.longitude)
-                    val bounds = LatLngBounds.Builder()
-                        .include(position)
-                        .include(tutorPos)
-                        .build()
-                    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
-                } else {
-                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15f))
-                }
-            }
-        }
+    private fun stopAlarm() {
+        isAlarmActive = false
+        binding.btnStopAlarm.visibility = android.view.View.GONE
+        Toast.makeText(context, "Alarme desativado", Toast.LENGTH_SHORT).show()
     }
     
-    private fun showFirebaseLocationOnMap(latitude: Double, longitude: Double) {
-        // Mostra coordenadas do Firebase no mapa integrado do app
-        googleMap?.let { map ->
-            val position = LatLng(latitude, longitude)
-            
-            // Remove marcadores anteriores
-            monitoradoMarker?.remove()
-            
-            // Adiciona marcador com coordenadas do Firebase
-            monitoradoMarker = map.addMarker(
-                MarkerOptions()
-                    .position(position)
-                    .title("📍 Localização Compartilhada")
-                    .snippet("${String.format("%.6f", latitude)}, ${String.format("%.6f", longitude)}")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-            )
-            
-            // Centraliza mapa nas coordenadas compartilhadas
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 16f))
-        }
-    }
+
+    
+
     
     private fun searchCoordinatesInGoogleMaps(latitude: Double, longitude: Double) {
-        // Atualiza o mapa integrado com as coordenadas
-        showFirebaseLocationOnMap(latitude, longitude)
-        Toast.makeText(context, "Mapa atualizado com coordenadas compartilhadas", Toast.LENGTH_SHORT).show()
+        // Coordenadas atualizadas no display
+        Toast.makeText(context, "Coordenadas atualizadas", Toast.LENGTH_SHORT).show()
     }
     
     private fun showLocationNotAvailable() {
         binding.txtStatus.text = "LOCALIZAÇÃO NÃO DISPONÍVEL"
         binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#FFEBEE"))
         binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#D32F2F"))
+        
+        binding.txtDistanceDisplay.text = "-- metros"
+        binding.txtDistanceDisplay.setTextColor(android.graphics.Color.parseColor("#666666"))
         
         binding.txtLocationInfo.text = "Código incorreto ou sem conexão"
         binding.txtLocationInfo.setOnClickListener(null)
@@ -599,19 +621,8 @@ class RastreioFragment : Fragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        binding.mapView.onResume()
-    }
-    
-    override fun onPause() {
-        super.onPause()
-        binding.mapView.onPause()
-    }
-    
     override fun onDestroyView() {
         super.onDestroyView()
-        binding.mapView.onDestroy()
         // Remove Firebase listener
         locationListener?.let { listener ->
             currentTrackingCode?.let { code ->
@@ -619,11 +630,6 @@ class RastreioFragment : Fragment() {
             }
         }
         _binding = null
-    }
-    
-    override fun onLowMemory() {
-        super.onLowMemory()
-        binding.mapView.onLowMemory()
     }
     
     companion object {

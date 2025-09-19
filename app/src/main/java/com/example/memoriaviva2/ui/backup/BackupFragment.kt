@@ -18,6 +18,7 @@ import java.io.IOException
 class BackupFragment : Fragment() {
 
     private lateinit var buttonExport: Button
+    private lateinit var buttonExportPdf: Button
     private lateinit var buttonImport: Button
     private val backupManager = BackupManager()
 
@@ -27,6 +28,16 @@ class BackupFragment : Fragment() {
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
                 exportData(uri)
+            }
+        }
+    }
+    
+    private val exportPdfLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                showCommentsDialog(uri)
             }
         }
     }
@@ -49,10 +60,15 @@ class BackupFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_backup, container, false)
 
         buttonExport = root.findViewById(R.id.buttonExport)
+        buttonExportPdf = root.findViewById(R.id.buttonExportPdf)
         buttonImport = root.findViewById(R.id.buttonImport)
 
         buttonExport.setOnClickListener {
             createExportFile()
+        }
+        
+        buttonExportPdf.setOnClickListener {
+            createPdfFile()
         }
 
         buttonImport.setOnClickListener {
@@ -106,6 +122,43 @@ class BackupFragment : Fragment() {
             Toast.makeText(requireContext(), "Dados importados com sucesso!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Erro ao importar dados: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+    
+    private fun createPdfFile() {
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/pdf"
+            putExtra(Intent.EXTRA_TITLE, "relatorio_memoria_viva.pdf")
+        }
+        exportPdfLauncher.launch(intent)
+    }
+    
+    private fun showCommentsDialog(uri: Uri) {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        val input = android.widget.EditText(requireContext())
+        input.hint = "Digite seus comentários (opcional)"
+        input.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+        input.minLines = 3
+        
+        builder.setTitle("Comentários do Relatório")
+            .setMessage("Adicione comentários que serão incluídos no PDF:")
+            .setView(input)
+            .setPositiveButton("Gerar PDF") { _, _ ->
+                val comments = input.text.toString().trim()
+                exportPdf(uri, comments)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+    
+    private fun exportPdf(uri: Uri, comments: String) {
+        try {
+            val pdfGenerator = PdfGenerator(requireContext())
+            pdfGenerator.generatePdf(uri, comments)
+            Toast.makeText(requireContext(), "Relatório PDF gerado com sucesso!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Erro ao gerar PDF: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 }

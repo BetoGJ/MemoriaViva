@@ -21,6 +21,13 @@
             android:icon="@android:drawable/ic_media_play" />
     </group>
     
+    <group android:id="@+id/group_settings">
+        <item 
+            android:id="@+id/menu_edit_registration" 
+            android:title="✏️ Editar Cadastro"
+            android:icon="@android:drawable/ic_menu_edit" />
+    </group>
+    
     <item android:title="Seções Recreativa" android:visible="false">
         <menu>
             <item 

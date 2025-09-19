@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textViewUserWeightDisplay: TextView
     private lateinit var textViewUserSurgeriesDisplay: TextView
     private lateinit var textViewUserHospitalizationsDisplay: TextView
+    private lateinit var buttonEditRegistration: Button
     private lateinit var buttonClearTestData: Button
     private lateinit var textViewRedirecting: TextView
 
@@ -128,9 +130,14 @@ class MainActivity : AppCompatActivity() {
             textViewUserWeightDisplay = findViewById(R.id.textViewUserWeightDisplay)
             textViewUserSurgeriesDisplay = findViewById(R.id.textViewUserSurgeriesDisplay)
             textViewUserHospitalizationsDisplay = findViewById(R.id.textViewUserHospitalizationsDisplay)
+            buttonEditRegistration = findViewById(R.id.buttonEditRegistration)
             buttonClearTestData = findViewById(R.id.buttonClearRegistrationTestData)
             textViewRedirecting = findViewById(R.id.textViewRedirectingToRegistration)
 
+            buttonEditRegistration.setOnClickListener {
+                openEditRegistration()
+            }
+            
             buttonClearTestData.setOnClickListener {
                 clearRegistrationDataAndRestartCheck()
             }
@@ -165,6 +172,23 @@ class MainActivity : AppCompatActivity() {
             setupActionBarWithNavController(navController, appBarConfiguration)
             bottomNavView.setupWithNavController(navController)
             sideNavView?.setupWithNavController(navController)
+            
+            // Handle menu item clicks
+            sideNavView?.setNavigationItemSelectedListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.menu_edit_registration -> {
+                        openEditRegistration()
+                        drawerLayout?.closeDrawers()
+                        true
+                    }
+                    else -> {
+                        // Let NavController handle other items
+                        navController.navigate(menuItem.itemId)
+                        drawerLayout?.closeDrawers()
+                        true
+                    }
+                }
+            }
 
         } catch (e: Exception) {
             Log.e(TAG, "Error setting up navigation", e)
@@ -315,6 +339,16 @@ class MainActivity : AppCompatActivity() {
         }
         Log.d(TAG, "clearRegistrationDataAndRestartCheck: Dados limpos. Verificando novamente o status do usuário.")
         checkUserRegistrationStatusAndSetupUI()
+    }
+    
+    private fun openEditRegistration() {
+        try {
+            val intent = Intent(this, RegistrationActivity::class.java)
+            intent.putExtra("EDIT_MODE", true)
+            registrationLauncher.launch(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Erro ao abrir edição de cadastro", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -39,4 +39,8 @@ class DietRepository(context: Context) {
         dietItems.removeAll { it.id == dietItemId }
         saveDietItems(dietItems)
     }
+    
+    fun getAllDietItems(): List<DietItem> {
+        return getDietItems()
+    }
 }
