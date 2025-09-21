@@ -131,6 +131,34 @@ class PdfGenerator(private val context: Context) {
         }
         currentY += 20
         
+        // Contatos de Emergência
+        canvas.drawText("CONTATOS DE EMERGÊNCIA", margin.toFloat(), currentY.toFloat(), headerPaint)
+        currentY += 25
+        
+        try {
+            val contactRepository = com.example.memoriaviva2.ui.contacts.EmergencyContactRepository(context)
+            val contacts = contactRepository.getEmergencyContacts()
+            
+            if (contacts.isNotEmpty()) {
+                contacts.forEach { contact ->
+                    canvas.drawText("• ${contact.name} - ${contact.fullNumber}", margin.toFloat(), currentY.toFloat(), normalPaint)
+                    currentY += lineHeight
+                    if (contact.description.isNotEmpty()) {
+                        canvas.drawText("  ${contact.description}", margin + 20.toFloat(), currentY.toFloat(), normalPaint)
+                        currentY += lineHeight
+                    }
+                    currentY += 5
+                }
+            } else {
+                canvas.drawText("Informação não notificada", margin.toFloat(), currentY.toFloat(), normalPaint)
+                currentY += lineHeight
+            }
+        } catch (e: Exception) {
+            canvas.drawText("Informação não notificada", margin.toFloat(), currentY.toFloat(), normalPaint)
+            currentY += lineHeight
+        }
+        currentY += 20
+        
         // Medicamentos
         canvas.drawText("MEDICAMENTOS", margin.toFloat(), currentY.toFloat(), headerPaint)
         currentY += 25

@@ -36,8 +36,14 @@ class EmergencyContactRepository(context: Context) {
     fun getEmergencyContacts(): MutableList<EmergencyContact> {
         val jsonContacts = sharedPreferences.getString(contactsKey, null)
         return if (jsonContacts != null) {
-            val type = object : TypeToken<MutableList<EmergencyContact>>() {}.type
-            gson.fromJson(jsonContacts, type)
+            try {
+                val type = object : TypeToken<MutableList<EmergencyContact>>() {}.type
+                gson.fromJson(jsonContacts, type) ?: mutableListOf()
+            } catch (e: Exception) {
+                // Se falhar ao deserializar (contatos antigos sem description), limpa e retorna lista vazia
+                sharedPreferences.edit().remove(contactsKey).apply()
+                mutableListOf()
+            }
         } else {
             mutableListOf()
         }

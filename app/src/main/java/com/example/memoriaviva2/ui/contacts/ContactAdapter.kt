@@ -31,7 +31,8 @@ class EmergencyContactAdapter(
     class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameTextView: TextView = itemView.findViewById(R.id.text_view_contact_name)
         private val numberTextView: TextView = itemView.findViewById(R.id.text_view_contact_number)
-        private val callButton: ImageButton = itemView.findViewById(R.id.button_call_contact) // NOVO BOTÃO
+        private val descriptionTextView: TextView = itemView.findViewById(R.id.text_view_contact_description)
+        private val callButton: ImageButton = itemView.findViewById(R.id.button_call_contact)
         private val editButton: ImageButton = itemView.findViewById(R.id.button_edit_contact)
         private val removeButton: ImageButton = itemView.findViewById(R.id.button_remove_contact)
 
@@ -42,9 +43,16 @@ class EmergencyContactAdapter(
             onCallClick: (EmergencyContact) -> Unit // NOVO CALLBACK
         ) {
             nameTextView.text = contact.name
-            numberTextView.text = contact.fullNumber // Mostra +DDD Numero
+            numberTextView.text = contact.fullNumber
+            
+            if (!contact.description.isNullOrEmpty()) {
+                descriptionTextView.text = contact.description
+                descriptionTextView.visibility = View.VISIBLE
+            } else {
+                descriptionTextView.visibility = View.GONE
+            }
 
-            callButton.setOnClickListener { onCallClick(contact) } // CONFIGURA LISTENER
+            callButton.setOnClickListener { onCallClick(contact) }
             editButton.setOnClickListener { onEditClick(contact) }
             removeButton.setOnClickListener { onRemoveClick(contact) }
         }

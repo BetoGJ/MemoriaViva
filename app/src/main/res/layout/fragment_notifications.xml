@@ -17,11 +17,22 @@
     android:orientation="vertical"
     android:padding="24dp">
 
+    <TextView
+        android:id="@+id/textViewFragmentTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Remédios"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp" />
+
     <EditText
         android:id="@+id/editRemedio"
         android:layout_width="363dp"
         android:layout_height="70dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="32dp"
         android:hint="Nome do remédio"
         android:textSize="22sp" />
 

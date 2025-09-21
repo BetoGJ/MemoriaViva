@@ -52,13 +52,13 @@ class ContactFragment : Fragment() {
         return view
     }
     private fun openDialerWithNumber(phoneNumber: String) {
-        val intent = Intent(Intent.ACTION_DIAL).apply {
-            data = Uri.parse("tel:$phoneNumber")
-        }
-        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+        try {
+            val intent = Intent(Intent.ACTION_DIAL).apply {
+                data = Uri.parse("tel:$phoneNumber")
+            }
             startActivity(intent)
-        } else {
-            Toast.makeText(requireContext(), "Nenhum aplicativo de discagem encontrado.", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Erro ao abrir discador: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -81,19 +81,18 @@ class ContactFragment : Fragment() {
     }
 
     private fun showAddEditContactDialog(contactToEdit: EmergencyContact?) {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_edit_contact, null) // Crie este layout de diálogo
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_edit_contact, null)
         val editTextName = dialogView.findViewById<EditText>(R.id.edit_text_contact_name)
         val editTextNumber = dialogView.findViewById<EditText>(R.id.edit_text_contact_number)
-        // Opcional: Se você quiser editar o DDD manualmente, adicione um EditText para ele.
-        // val editTextDDD = dialogView.findViewById<EditText>(R.id.edit_text_contact_ddd)
+        val editTextDescription = dialogView.findViewById<EditText>(R.id.edit_text_contact_description)
 
 
         val dialogTitle = if (contactToEdit == null) "Adicionar Contato" else "Editar Contato"
 
         if (contactToEdit != null) {
             editTextName.setText(contactToEdit.name)
-            editTextNumber.setText(contactToEdit.number) // Mostra apenas o número sem DDD para edição
-            // if (editTextDDD != null) editTextDDD.setText(contactToEdit.ddd)
+            editTextNumber.setText(contactToEdit.number)
+            editTextDescription.setText(contactToEdit.description)
         }
 
         AlertDialog.Builder(requireContext())
@@ -102,18 +101,13 @@ class ContactFragment : Fragment() {
             .setPositiveButton(if (contactToEdit == null) "Adicionar" else "Salvar") { dialog, _ ->
                 val name = editTextName.text.toString().trim()
                 val number = editTextNumber.text.toString().trim()
-                // val ddd = if (editTextDDD != null) editTextDDD.text.toString().trim() else ""
-
+                val description = editTextDescription.text.toString().trim()
 
                 if (name.isNotEmpty() && number.isNotEmpty()) {
                     if (contactToEdit == null) {
-                        // DDD será adicionado automaticamente pelo ViewModel/Repository
-                        contactViewModel.addContact(name, number)
+                        contactViewModel.addContact(name, number, description)
                     } else {
-                        // Se você tem um campo DDD no diálogo:
-                        // val updatedContact = contactToEdit.copy(name = name, ddd = ddd, number = number)
-                        // Se não, o DDD existente será mantido ou o padrão será usado se estava em branco
-                        val updatedContact = contactToEdit.copy(name = name, number = number)
+                        val updatedContact = contactToEdit.copy(name = name, number = number, description = description)
                         contactViewModel.updateContact(updatedContact)
                     }
                 }

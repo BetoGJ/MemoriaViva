@@ -18,7 +18,8 @@
             android:layout_height="wrap_content"
             android:text="Nome do Contato"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="#6200EE" />
 
         <TextView
             android:id="@+id/text_view_contact_number"
@@ -26,6 +27,17 @@
             android:layout_height="wrap_content"
             android:text="+5511999999999"
             android:textSize="24sp" />
+            
+        <TextView
+            android:id="@+id/text_view_contact_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Descrição"
+            android:textSize="18sp"
+            android:textStyle="italic"
+            android:textColor="#666666"
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
     </LinearLayout>
 
     <!-- BOTÃO DE CHAMADA ADICIONADO AQUI -->

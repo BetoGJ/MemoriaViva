@@ -22,12 +22,10 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
         _emergencyContacts.value = repository.getEmergencyContacts()
     }
 
-    fun addContact(name: String, number: String) {
-        // O número já vem limpo do input do usuário, sem DDD
-        // O DDD será adicionado automaticamente pelo repositório
-        val newContact = EmergencyContact(name = name, number = number)
+    fun addContact(name: String, number: String, description: String = "") {
+        val newContact = EmergencyContact(name = name, number = number, description = description)
         repository.addEmergencyContact(newContact)
-        loadContacts() // Recarrega a lista
+        loadContacts()
     }
 
     fun removeContact(contact: EmergencyContact) {

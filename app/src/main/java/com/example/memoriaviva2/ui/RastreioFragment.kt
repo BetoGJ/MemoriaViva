@@ -35,6 +35,7 @@ class RastreioFragment : Fragment() {
     private var alarmDistance = 100f // metros
     private var isAlarmActive = false
     private var isCuidadorMode = false
+    private lateinit var locationNotificationManager: LocationNotificationManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,6 +48,7 @@ class RastreioFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        locationNotificationManager = LocationNotificationManager(requireContext())
         setupButtons()
 
     }
@@ -539,6 +541,9 @@ class RastreioFragment : Fragment() {
         
         val distanceText = String.format("%.0f metros", distance)
         
+        // NOTIFICAÇÃO PERSISTENTE
+        locationNotificationManager.showLocationAlert(distance, alarmDistance)
+        
         // ALARME VISUAL E SONORO
         Toast.makeText(context, "🚨 ALARME: Paciente muito longe! $distanceText", Toast.LENGTH_LONG).show()
         
@@ -567,6 +572,7 @@ class RastreioFragment : Fragment() {
     private fun stopAlarm() {
         isAlarmActive = false
         binding.btnStopAlarm.visibility = android.view.View.GONE
+        locationNotificationManager.cancelLocationAlert()
         Toast.makeText(context, "Alarme desativado", Toast.LENGTH_SHORT).show()
     }
     

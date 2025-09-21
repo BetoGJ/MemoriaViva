@@ -1,9 +1,8 @@
-package com.example.memoriaviva2.ui.medications
+package com.example.memoriaviva2.ui
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
@@ -12,34 +11,21 @@ import androidx.core.app.NotificationCompat
 import com.example.memoriaviva2.MainActivity
 import com.example.memoriaviva2.R
 
-class MedicationAlarmReceiver : BroadcastReceiver() {
+class LocationNotificationManager(private val context: Context) {
     
     companion object {
-        private const val CHANNEL_ID = "medication_reminders"
-        private const val NOTIFICATION_ID = 1001
+        private const val CHANNEL_ID = "location_alerts"
+        private const val NOTIFICATION_ID = 2001
     }
     
-    override fun onReceive(context: Context, intent: Intent) {
-        val medicationName = intent.getStringExtra("medication_name") ?: "Remédio"
-        val medicationDosage = intent.getStringExtra("medication_dosage") ?: ""
-        
-        createNotificationChannel(context)
-        showNotification(context, medicationName, medicationDosage)
-        
-        // Toca o som do alarme
-        try {
-            val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-            val ringtone = RingtoneManager.getRingtone(context, notification)
-            ringtone.play()
-        } catch (e: Exception) {
-            // Se não conseguir tocar o alarme, continua com a notificação
-        }
+    init {
+        createNotificationChannel()
     }
     
-    private fun createNotificationChannel(context: Context) {
+    private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Lembretes de Medicação"
-            val descriptionText = "Notificações para lembrar de tomar remédios"
+            val name = "Alertas de Localização"
+            val descriptionText = "Notificações quando o paciente sai da área segura"
             val importance = NotificationManager.IMPORTANCE_HIGH
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
@@ -52,9 +38,10 @@ class MedicationAlarmReceiver : BroadcastReceiver() {
         }
     }
     
-    private fun showNotification(context: Context, medicationName: String, dosage: String) {
+    fun showLocationAlert(distance: Float, limit: Float) {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("open_tracking", true)
         }
         
         val pendingIntent = PendingIntent.getActivity(
@@ -64,16 +51,24 @@ class MedicationAlarmReceiver : BroadcastReceiver() {
         
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notifications_black_24dp)
-            .setContentTitle("💊 Hora do Remédio")
-            .setContentText("$medicationName - $dosage")
+            .setContentTitle("🚨 Alerta de Localização")
+            .setContentText("Paciente a ${distance.toInt()}m (limite: ${limit.toInt()}m)")
+            .setStyle(NotificationCompat.BigTextStyle()
+                .bigText("O paciente saiu da área segura!\nDistância atual: ${distance.toInt()} metros\nLimite configurado: ${limit.toInt()} metros"))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
-            .setVibrate(longArrayOf(0, 500, 200, 500))
+            .setVibrate(longArrayOf(0, 1000, 500, 1000))
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
+            .setOngoing(true) // Mantém a notificação até ser cancelada
             .build()
         
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(NOTIFICATION_ID, notification)
+    }
+    
+    fun cancelLocationAlert() {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(NOTIFICATION_ID)
     }
 }
