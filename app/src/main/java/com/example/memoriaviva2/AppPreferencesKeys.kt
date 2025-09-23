@@ -8,4 +8,6 @@ object AppPreferencesKeys {
     const val KEY_USER_WEIGHT = "user_weight_v2"
     const val KEY_USER_RECENT_SURGERIES = "user_recent_surgeries_v2"
     const val KEY_USER_RECENT_HOSPITALIZATIONS = "user_recent_hospitalizations_v2"
+    const val KEY_USER_COMORBIDITIES = "user_comorbidities_v2"
+    const val KEY_USER_ALLERGIES = "user_allergies_v2"
 }

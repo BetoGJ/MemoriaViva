@@ -18,16 +18,18 @@ class PdfGenerator(private val context: Context) {
     private val pageHeight = 842
     private val margin = 50
     private val lineHeight = 20
+    private val maxY = pageHeight - margin - 50
+    
+    private lateinit var document: PdfDocument
+    private lateinit var canvas: Canvas
+    private lateinit var currentPage: PdfDocument.Page
+    private var currentY = 0
+    private var pageNumber = 1
     
     fun generatePdf(uri: Uri, comments: String) {
-        val document = PdfDocument()
-        var currentY = margin + 50
+        document = PdfDocument()
+        startNewPage()
         
-        val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-        val page = document.startPage(pageInfo)
-        val canvas = page.canvas
-        
-        // Configurar estilos de texto
         val titlePaint = Paint().apply {
             color = Color.BLACK
             textSize = 24f
@@ -45,48 +47,50 @@ class PdfGenerator(private val context: Context) {
             textSize = 14f
         }
         
-        // Título do documento
-        canvas.drawText("RELATÓRIO MÉDICO - MEMÓRIA VIVA", margin.toFloat(), currentY.toFloat(), titlePaint)
+        drawText("RELATÓRIO MÉDICO - MEMÓRIA VIVA", titlePaint)
         currentY += 40
         
-        // Linha separadora
         canvas.drawLine(margin.toFloat(), currentY.toFloat(), (pageWidth - margin).toFloat(), currentY.toFloat(), normalPaint)
         currentY += 30
         
-        // Informações do paciente
         val sharedPrefs = context.getSharedPreferences(AppPreferencesKeys.PREFS_USER_DATA, Context.MODE_PRIVATE)
         val name = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_NAME, "Informação não notificada") ?: "Informação não notificada"
         val age = sharedPrefs.getInt(AppPreferencesKeys.KEY_USER_AGE, 0)
         val weight = sharedPrefs.getFloat(AppPreferencesKeys.KEY_USER_WEIGHT, 0f)
         
-        canvas.drawText("DADOS DO PACIENTE", margin.toFloat(), currentY.toFloat(), headerPaint)
+        drawText("DADOS DO PACIENTE", headerPaint)
         currentY += 25
-        canvas.drawText("Nome: $name", margin.toFloat(), currentY.toFloat(), normalPaint)
-        currentY += lineHeight
-        canvas.drawText("Idade: ${if (age > 0) "$age anos" else "Informação não notificada"}", margin.toFloat(), currentY.toFloat(), normalPaint)
-        currentY += lineHeight
-        canvas.drawText("Peso: ${if (weight > 0) "${weight}kg" else "Informação não notificada"}", margin.toFloat(), currentY.toFloat(), normalPaint)
+        drawText("Nome: $name", normalPaint)
+        drawText("Idade: ${if (age > 0) "$age anos" else "Informação não notificada"}", normalPaint)
+        drawText("Peso: ${if (weight > 0) "${weight}kg" else "Informação não notificada"}", normalPaint)
         currentY += 30
         
-        // Cirurgias e internações
-        canvas.drawText("HISTÓRICO MÉDICO", margin.toFloat(), currentY.toFloat(), headerPaint)
+        drawText("HISTÓRICO MÉDICO", headerPaint)
         currentY += 25
         
         val surgeries = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, "") ?: ""
         val hospitalizations = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, "") ?: ""
         
-        canvas.drawText("Cirurgias Recentes:", margin.toFloat(), currentY.toFloat(), normalPaint)
-        currentY += lineHeight
-        canvas.drawText(if (surgeries.isNotEmpty()) surgeries else "Informação não notificada", margin + 20.toFloat(), currentY.toFloat(), normalPaint)
+        drawText("Cirurgias Recentes:", normalPaint)
+        drawTextWithIndent(if (surgeries.isNotEmpty()) surgeries else "Informação não notificada", normalPaint)
         currentY += 25
         
-        canvas.drawText("Internações Recentes:", margin.toFloat(), currentY.toFloat(), normalPaint)
-        currentY += lineHeight
-        canvas.drawText(if (hospitalizations.isNotEmpty()) hospitalizations else "Informação não notificada", margin + 20.toFloat(), currentY.toFloat(), normalPaint)
+        drawText("Internações Recentes:", normalPaint)
+        drawTextWithIndent(if (hospitalizations.isNotEmpty()) hospitalizations else "Informação não notificada", normalPaint)
+        currentY += 25
+        
+        val comorbidities = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, "") ?: ""
+        val allergies = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_ALLERGIES, "") ?: ""
+        
+        drawText("Problemas de Saúde:", normalPaint)
+        drawTextWithIndent(if (comorbidities.isNotEmpty()) comorbidities else "Informação não notificada", normalPaint)
+        currentY += 25
+        
+        drawText("Alergias:", normalPaint)
+        drawTextWithIndent(if (allergies.isNotEmpty()) allergies else "Informação não notificada", normalPaint)
         currentY += 30
         
-        // Rotina
-        canvas.drawText("ROTINA DIÁRIA", margin.toFloat(), currentY.toFloat(), headerPaint)
+        drawText("ROTINA DIÁRIA", headerPaint)
         currentY += 25
         
         try {
@@ -95,21 +99,17 @@ class PdfGenerator(private val context: Context) {
             
             if (routines.isNotEmpty()) {
                 routines.forEach { routine ->
-                    canvas.drawText("${String.format("%02d:%02d", routine.hour, routine.minute)} - ${routine.name}", margin.toFloat(), currentY.toFloat(), normalPaint)
-                    currentY += lineHeight
+                    drawText("${String.format("%02d:%02d", routine.hour, routine.minute)} - ${routine.name}", normalPaint)
                 }
             } else {
-                canvas.drawText("Informação não notificada", margin.toFloat(), currentY.toFloat(), normalPaint)
-                currentY += lineHeight
+                drawText("Informação não notificada", normalPaint)
             }
         } catch (e: Exception) {
-            canvas.drawText("Informação não notificada", margin.toFloat(), currentY.toFloat(), normalPaint)
-            currentY += lineHeight
+            drawText("Informação não notificada", normalPaint)
         }
         currentY += 20
         
-        // Dieta
-        canvas.drawText("DIETA", margin.toFloat(), currentY.toFloat(), headerPaint)
+        drawText("DIETA", headerPaint)
         currentY += 25
         
         try {
@@ -118,49 +118,17 @@ class PdfGenerator(private val context: Context) {
             
             if (dietItems.isNotEmpty()) {
                 dietItems.forEach { item ->
-                    canvas.drawText("• ${item.foodName} - ${item.portion} (${item.mealTime})", margin.toFloat(), currentY.toFloat(), normalPaint)
-                    currentY += lineHeight
+                    drawText("• ${item.foodName} - ${item.portion} (${item.mealTime})", normalPaint)
                 }
             } else {
-                canvas.drawText("Informação não notificada", margin.toFloat(), currentY.toFloat(), normalPaint)
-                currentY += lineHeight
+                drawText("Informação não notificada", normalPaint)
             }
         } catch (e: Exception) {
-            canvas.drawText("Informação não notificada", margin.toFloat(), currentY.toFloat(), normalPaint)
-            currentY += lineHeight
+            drawText("Informação não notificada", normalPaint)
         }
         currentY += 20
         
-        // Contatos de Emergência
-        canvas.drawText("CONTATOS DE EMERGÊNCIA", margin.toFloat(), currentY.toFloat(), headerPaint)
-        currentY += 25
-        
-        try {
-            val contactRepository = com.example.memoriaviva2.ui.contacts.EmergencyContactRepository(context)
-            val contacts = contactRepository.getEmergencyContacts()
-            
-            if (contacts.isNotEmpty()) {
-                contacts.forEach { contact ->
-                    canvas.drawText("• ${contact.name} - ${contact.fullNumber}", margin.toFloat(), currentY.toFloat(), normalPaint)
-                    currentY += lineHeight
-                    if (contact.description.isNotEmpty()) {
-                        canvas.drawText("  ${contact.description}", margin + 20.toFloat(), currentY.toFloat(), normalPaint)
-                        currentY += lineHeight
-                    }
-                    currentY += 5
-                }
-            } else {
-                canvas.drawText("Informação não notificada", margin.toFloat(), currentY.toFloat(), normalPaint)
-                currentY += lineHeight
-            }
-        } catch (e: Exception) {
-            canvas.drawText("Informação não notificada", margin.toFloat(), currentY.toFloat(), normalPaint)
-            currentY += lineHeight
-        }
-        currentY += 20
-        
-        // Medicamentos
-        canvas.drawText("MEDICAMENTOS", margin.toFloat(), currentY.toFloat(), headerPaint)
+        drawText("MEDICAMENTOS", headerPaint)
         currentY += 25
         
         try {
@@ -169,56 +137,94 @@ class PdfGenerator(private val context: Context) {
             
             if (medications.isNotEmpty()) {
                 medications.forEach { med ->
-                    canvas.drawText("• ${med.nome} - ${med.dosagem}", margin.toFloat(), currentY.toFloat(), normalPaint)
-                    currentY += lineHeight
-                    canvas.drawText("  Horário: ${String.format("%02d:%02d", med.hora, med.minuto)}", margin + 20.toFloat(), currentY.toFloat(), normalPaint)
-                    currentY += lineHeight + 5
+                    drawText("• ${med.nome} - ${med.dosagem}", normalPaint)
+                    drawTextWithIndent("Horário: ${String.format("%02d:%02d", med.hora, med.minuto)}", normalPaint)
+                    currentY += 5
                 }
             } else {
-                canvas.drawText("Informação não notificada", margin.toFloat(), currentY.toFloat(), normalPaint)
-                currentY += lineHeight
+                drawText("Informação não notificada", normalPaint)
             }
         } catch (e: Exception) {
-            canvas.drawText("Informação não notificada", margin.toFloat(), currentY.toFloat(), normalPaint)
-            currentY += lineHeight
+            drawText("Informação não notificada", normalPaint)
         }
         currentY += 20
         
-        // Comentários
-        if (comments.isNotEmpty()) {
-            canvas.drawText("COMENTÁRIOS", margin.toFloat(), currentY.toFloat(), headerPaint)
-            currentY += 25
+        drawText("MONITORAMENTO DE SAÚDE", headerPaint)
+        currentY += 25
+        
+        try {
+            val saudePrefs = context.getSharedPreferences("dados_saude", Context.MODE_PRIVATE)
+            val saudeJson = saudePrefs.getString("lista_dados", "[]")
+            val type = object : com.google.gson.reflect.TypeToken<List<com.example.memoriaviva2.ui.saude.DadosSaude>>() {}.type
+            val dadosSaude = com.google.gson.Gson().fromJson<List<com.example.memoriaviva2.ui.saude.DadosSaude>>(saudeJson, type) ?: emptyList()
             
-            // Quebrar texto em linhas
-            val words = comments.split(" ")
-            var currentLine = ""
-            
-            words.forEach { word ->
-                val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
-                val textWidth = normalPaint.measureText(testLine)
+            if (dadosSaude.isNotEmpty()) {
+                val hoje = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date())
+                val dadosHoje = dadosSaude.filter { it.dataRegistro.startsWith(hoje) }
+                val dadosParaMostrar = if (dadosHoje.isNotEmpty()) dadosHoje else dadosSaude.take(1)
                 
-                if (textWidth > pageWidth - 2 * margin) {
-                    canvas.drawText(currentLine, margin.toFloat(), currentY.toFloat(), normalPaint)
-                    currentY += lineHeight
-                    currentLine = word
-                } else {
-                    currentLine = testLine
+                dadosParaMostrar.forEach { dados ->
+                    drawText("Data: ${dados.dataRegistro}", normalPaint)
+                    if (dados.pressaoArterial.isNotEmpty()) {
+                        drawTextWithIndent("PA: ${dados.pressaoArterial}", normalPaint)
+                    }
+                    if (dados.frequenciaCardiaca.isNotEmpty()) {
+                        drawTextWithIndent("FC: ${dados.frequenciaCardiaca} bpm", normalPaint)
+                    }
+                    if (dados.temperatura.isNotEmpty()) {
+                        drawTextWithIndent("Temp: ${dados.temperatura}°C", normalPaint)
+                    }
+                    if (dados.peso.isNotEmpty() && dados.imc.isNotEmpty()) {
+                        drawTextWithIndent("Peso: ${dados.peso}kg | IMC: ${dados.imc}", normalPaint)
+                    }
+                    if (dados.queixas.isNotEmpty()) {
+                        drawTextWithIndent("Queixas: ${dados.queixas}", normalPaint)
+                    }
+                    currentY += 10
                 }
+            } else {
+                drawText("Informação não notificada", normalPaint)
             }
+        } catch (e: Exception) {
+            drawText("Informação não notificada", normalPaint)
+        }
+        currentY += 20
+        
+        drawText("CONTATOS DE EMERGÊNCIA", headerPaint)
+        currentY += 25
+        
+        try {
+            val contactRepository = com.example.memoriaviva2.ui.contacts.EmergencyContactRepository(context)
+            val contacts = contactRepository.getEmergencyContacts()
             
-            if (currentLine.isNotEmpty()) {
-                canvas.drawText(currentLine, margin.toFloat(), currentY.toFloat(), normalPaint)
-                currentY += lineHeight
+            if (contacts.isNotEmpty()) {
+                contacts.forEach { contact ->
+                    drawText("• ${contact.name} - ${contact.fullNumber}", normalPaint)
+                    if (contact.description.isNotEmpty()) {
+                        drawTextWithIndent(contact.description, normalPaint)
+                    }
+                    currentY += 5
+                }
+            } else {
+                drawText("Informação não notificada", normalPaint)
             }
+        } catch (e: Exception) {
+            drawText("Informação não notificada", normalPaint)
+        }
+        currentY += 20
+        
+        if (comments.isNotEmpty()) {
+            drawText("COMENTÁRIOS", headerPaint)
+            currentY += 25
+            drawWrappedText(comments, normalPaint)
         }
         
-        // Data de geração
         currentY += 30
         canvas.drawLine(margin.toFloat(), currentY.toFloat(), (pageWidth - margin).toFloat(), currentY.toFloat(), normalPaint)
         currentY += 20
-        canvas.drawText("Relatório gerado em: ${java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date())}", margin.toFloat(), currentY.toFloat(), normalPaint)
+        drawText("Relatório gerado em: ${java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date())}", normalPaint)
         
-        document.finishPage(page)
+        finishCurrentPage()
         
         try {
             context.contentResolver.openOutputStream(uri)?.use { outputStream ->
@@ -228,6 +234,60 @@ class PdfGenerator(private val context: Context) {
             throw e
         } finally {
             document.close()
+        }
+    }
+    
+    private fun startNewPage() {
+        val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+        currentPage = document.startPage(pageInfo)
+        canvas = currentPage.canvas
+        currentY = margin + 50
+    }
+    
+    private fun finishCurrentPage() {
+        document.finishPage(currentPage)
+    }
+    
+    private fun checkPageSpace(neededSpace: Int = lineHeight) {
+        if (currentY + neededSpace > maxY) {
+            finishCurrentPage()
+            pageNumber++
+            startNewPage()
+        }
+    }
+    
+    private fun drawText(text: String, paint: Paint) {
+        checkPageSpace()
+        canvas.drawText(text, margin.toFloat(), currentY.toFloat(), paint)
+        currentY += lineHeight
+    }
+    
+    private fun drawTextWithIndent(text: String, paint: Paint) {
+        checkPageSpace()
+        canvas.drawText(text, (margin + 20).toFloat(), currentY.toFloat(), paint)
+        currentY += lineHeight
+    }
+    
+    private fun drawWrappedText(text: String, paint: Paint) {
+        val words = text.split(" ")
+        var currentLine = ""
+        
+        words.forEach { word ->
+            val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+            val textWidth = paint.measureText(testLine)
+            
+            if (textWidth > pageWidth - 2 * margin) {
+                if (currentLine.isNotEmpty()) {
+                    drawText(currentLine, paint)
+                }
+                currentLine = word
+            } else {
+                currentLine = testLine
+            }
+        }
+        
+        if (currentLine.isNotEmpty()) {
+            drawText(currentLine, paint)
         }
     }
 }

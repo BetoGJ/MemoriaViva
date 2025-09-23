@@ -45,6 +45,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textViewUserWeightDisplay: TextView
     private lateinit var textViewUserSurgeriesDisplay: TextView
     private lateinit var textViewUserHospitalizationsDisplay: TextView
+    private lateinit var textViewUserComorbiditiesDisplay: TextView
+    private lateinit var textViewUserAllergiesDisplay: TextView
     private lateinit var buttonEditRegistration: Button
     private lateinit var buttonClearTestData: Button
     private lateinit var textViewRedirecting: TextView
@@ -130,6 +132,8 @@ class MainActivity : AppCompatActivity() {
             textViewUserWeightDisplay = findViewById(R.id.textViewUserWeightDisplay)
             textViewUserSurgeriesDisplay = findViewById(R.id.textViewUserSurgeriesDisplay)
             textViewUserHospitalizationsDisplay = findViewById(R.id.textViewUserHospitalizationsDisplay)
+            textViewUserComorbiditiesDisplay = findViewById(R.id.textViewUserComorbiditiesDisplay)
+            textViewUserAllergiesDisplay = findViewById(R.id.textViewUserAllergiesDisplay)
             buttonEditRegistration = findViewById(R.id.buttonEditRegistration)
             buttonClearTestData = findViewById(R.id.buttonClearRegistrationTestData)
             textViewRedirecting = findViewById(R.id.textViewRedirectingToRegistration)
@@ -161,7 +165,11 @@ class MainActivity : AppCompatActivity() {
             }
             navController = navHostFragment.navController
 
-            val topLevelDestinations = setOf(R.id.navigation_home, R.id.navigation_contact, R.id.navigation_notifications, R.id.navigation_backup, R.id.navigation_rastreio)
+            val topLevelDestinations = setOf(
+                R.id.navigation_home, R.id.navigation_contact, R.id.navigation_notifications, 
+                R.id.navigation_backup, R.id.navigation_rastreio, R.id.item_1, R.id.item_2, 
+                R.id.item_3, R.id.item_recreativa, R.id.item_monitoramento_saude
+            )
 
             appBarConfiguration = if (drawerLayout != null) {
                 AppBarConfiguration(topLevelDestinations, drawerLayout)
@@ -171,9 +179,8 @@ class MainActivity : AppCompatActivity() {
 
             setupActionBarWithNavController(navController, appBarConfiguration)
             bottomNavView.setupWithNavController(navController)
-            sideNavView?.setupWithNavController(navController)
             
-            // Handle menu item clicks
+            // Custom navigation handling for side menu
             sideNavView?.setNavigationItemSelectedListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.menu_edit_registration -> {
@@ -182,11 +189,31 @@ class MainActivity : AppCompatActivity() {
                         true
                     }
                     else -> {
-                        // Let NavController handle other items
-                        navController.navigate(menuItem.itemId)
-                        drawerLayout?.closeDrawers()
-                        true
+                        try {
+                            navController.navigate(menuItem.itemId)
+                            bottomNavView.menu.setGroupCheckable(0, true, false)
+                            for (i in 0 until bottomNavView.menu.size()) {
+                                bottomNavView.menu.getItem(i).isChecked = false
+                            }
+                            bottomNavView.menu.setGroupCheckable(0, true, true)
+                            drawerLayout?.closeDrawers()
+                            true
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Navigation error for menu item: ${menuItem.itemId}", e)
+                            false
+                        }
                     }
+                }
+            }
+            
+            // Ensure bottom navigation works after side navigation
+            bottomNavView.setOnItemSelectedListener { item ->
+                try {
+                    navController.navigate(item.itemId)
+                    true
+                } catch (e: Exception) {
+                    Log.e(TAG, "Bottom navigation error for item: ${item.itemId}", e)
+                    false
                 }
             }
 
@@ -276,6 +303,8 @@ class MainActivity : AppCompatActivity() {
         val weight = sharedPreferences.getFloat(AppPreferencesKeys.KEY_USER_WEIGHT, 0f)
         val surgeries = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, "")
         val hospitalizations = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, "")
+        val comorbidities = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, "")
+        val allergies = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_ALLERGIES, "")
 
         textViewWelcome.text = getString(R.string.welcome_message, name)
         textViewUserNameDisplay.text = getString(R.string.user_name_display, name)
@@ -283,6 +312,8 @@ class MainActivity : AppCompatActivity() {
         textViewUserWeightDisplay.text = getString(R.string.user_weight_display, weight)
         textViewUserSurgeriesDisplay.text = getString(R.string.user_surgeries_display, surgeries?.ifEmpty { getString(R.string.none_reported) })
         textViewUserHospitalizationsDisplay.text = getString(R.string.user_hospitalizations_display, hospitalizations?.ifEmpty { getString(R.string.none_reported) })
+        textViewUserComorbiditiesDisplay.text = getString(R.string.user_comorbidities_display, comorbidities?.ifEmpty { getString(R.string.none_reported) })
+        textViewUserAllergiesDisplay.text = getString(R.string.user_allergies_display, allergies?.ifEmpty { getString(R.string.none_reported) })
         Log.d(TAG, "loadAndDisplayUserData: Dados do usuário carregados e exibidos.")
     }
 

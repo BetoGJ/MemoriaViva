@@ -50,6 +50,8 @@ class HomeFragment : Fragment() {
         val peso = sharedPreferences.getFloat(AppPreferencesKeys.KEY_USER_WEIGHT, 0f)
         val cirurgias = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, "")
         val internacoes = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, "")
+        val comorbidades = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, "")
+        val alergias = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_ALLERGIES, "")
         
         binding.textViewNomeIdoso.text = "Nome: $nome"
         binding.textViewIdadeIdoso.text = "Idade: $idade anos"
@@ -65,6 +67,18 @@ class HomeFragment : Fragment() {
             "Nenhuma cirurgia registrada."
         } else {
             "Cirurgias: $cirurgias"
+        }
+        
+        binding.textViewComorbidesIdoso.text = if (comorbidades.isNullOrEmpty()) {
+            "Nenhum problema de saúde registrado."
+        } else {
+            "Problemas: $comorbidades"
+        }
+        
+        binding.textViewAlergiasIdoso.text = if (alergias.isNullOrEmpty()) {
+            "Nenhuma alergia registrada."
+        } else {
+            "Alergias: $alergias"
         }
     }
 }

@@ -10,6 +10,7 @@ import com.example.memoriaviva2.ui.contacts.EmergencyContactRepository
 import com.example.memoriaviva2.model.DietItem
 import com.example.memoriaviva2.data.DietRepository
 import com.example.memoriaviva2.ui.medications.MedicationRepository
+import com.example.memoriaviva2.ui.saude.DadosSaude
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -48,6 +49,16 @@ class BackupManager {
             emptyList<com.example.memoriaviva2.ui.dois.SimpleActivity>()
         }
         
+        // Get health data
+        val saudePrefs = context.getSharedPreferences("dados_saude", Context.MODE_PRIVATE)
+        val saudeJson = saudePrefs.getString("lista_dados", "[]")
+        val dadosSaude = try {
+            val type = object : TypeToken<List<DadosSaude>>() {}.type
+            Gson().fromJson<List<DadosSaude>>(saudeJson, type) ?: emptyList()
+        } catch (e: Exception) {
+            emptyList<DadosSaude>()
+        }
+        
         // Get user registration data
         val registro = if (sharedPrefs.getBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, false)) {
             RegistroData(
@@ -55,7 +66,9 @@ class BackupManager {
                 idade = sharedPrefs.getInt(AppPreferencesKeys.KEY_USER_AGE, 0),
                 peso = sharedPrefs.getFloat(AppPreferencesKeys.KEY_USER_WEIGHT, 0f),
                 cirurgiasRecentes = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, "") ?: "",
-                internacoes = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, "") ?: ""
+                internacoes = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, "") ?: "",
+                comorbidades = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, "") ?: "",
+                alergias = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_ALLERGIES, "") ?: ""
             )
         } else null
         
@@ -64,6 +77,7 @@ class BackupManager {
             remedios = remedios,
             rotina = rotina,
             dieta = dieta,
+            dadosSaude = dadosSaude,
             registro = registro
         )
     }
@@ -95,6 +109,11 @@ class BackupManager {
         val rotinaJson = Gson().toJson(backupData.rotina)
         routinePrefs.edit().putString("activities", rotinaJson).apply()
         
+        // Restore health data
+        val saudePrefs = context.getSharedPreferences("dados_saude", Context.MODE_PRIVATE)
+        val saudeJson = Gson().toJson(backupData.dadosSaude)
+        saudePrefs.edit().putString("lista_dados", saudeJson).apply()
+        
         // Restore user registration
         backupData.registro?.let { registro ->
             with(sharedPrefs.edit()) {
@@ -104,6 +123,8 @@ class BackupManager {
                 putFloat(AppPreferencesKeys.KEY_USER_WEIGHT, registro.peso)
                 putString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, registro.cirurgiasRecentes)
                 putString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, registro.internacoes)
+                putString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, registro.comorbidades)
+                putString(AppPreferencesKeys.KEY_USER_ALLERGIES, registro.alergias)
                 apply()
             }
         }

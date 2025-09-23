@@ -25,6 +25,8 @@ class RegistrationActivity : AppCompatActivity() {
     private lateinit var editTextWeightReg: TextInputEditText
     private lateinit var editTextRecentSurgeriesReg: TextInputEditText
     private lateinit var editTextRecentHospitalizationsReg: TextInputEditText
+    private lateinit var editTextComorbiditiesReg: TextInputEditText
+    private lateinit var editTextAllergiesReg: TextInputEditText
     private lateinit var buttonSaveRegistration: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +73,8 @@ class RegistrationActivity : AppCompatActivity() {
                 editTextWeightReg = findViewById(R.id.editTextWeightReg)
                 editTextRecentSurgeriesReg = findViewById(R.id.editTextRecentSurgeriesReg)
                 editTextRecentHospitalizationsReg = findViewById(R.id.editTextRecentHospitalizationsReg)
+                editTextComorbiditiesReg = findViewById(R.id.editTextComorbiditiesReg)
+                editTextAllergiesReg = findViewById(R.id.editTextAllergiesReg)
                 buttonSaveRegistration = findViewById(R.id.buttonSaveRegistration)
 
                 // Set button text based on mode
@@ -102,6 +106,8 @@ class RegistrationActivity : AppCompatActivity() {
         val weightStr = editTextWeightReg.text.toString().trim()
         val surgeries = editTextRecentSurgeriesReg.text.toString().trim()
         val hospitalizations = editTextRecentHospitalizationsReg.text.toString().trim()
+        val comorbidities = editTextComorbiditiesReg.text.toString().trim()
+        val allergies = editTextAllergiesReg.text.toString().trim()
 
         var isValid = true
 
@@ -142,6 +148,8 @@ class RegistrationActivity : AppCompatActivity() {
             editor.putFloat(AppPreferencesKeys.KEY_USER_WEIGHT, weight!!.toFloat())
             editor.putString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, surgeries)
             editor.putString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, hospitalizations)
+            editor.putString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, comorbidities)
+            editor.putString(AppPreferencesKeys.KEY_USER_ALLERGIES, allergies)
         }
         
         if (success) {
@@ -166,12 +174,16 @@ class RegistrationActivity : AppCompatActivity() {
             val weight = sharedPreferences.getFloat(AppPreferencesKeys.KEY_USER_WEIGHT, 0f)
             val surgeries = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, "")
             val hospitalizations = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, "")
+            val comorbidities = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, "")
+            val allergies = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_ALLERGIES, "")
             
             editTextNameReg.setText(name)
             if (age > 0) editTextAgeReg.setText(age.toString())
             if (weight > 0) editTextWeightReg.setText(weight.toString())
             editTextRecentSurgeriesReg.setText(surgeries)
             editTextRecentHospitalizationsReg.setText(hospitalizations)
+            editTextComorbiditiesReg.setText(comorbidities)
+            editTextAllergiesReg.setText(allergies)
         } catch (e: Exception) {
             Toast.makeText(this, "Erro ao carregar dados existentes", Toast.LENGTH_SHORT).show()
         }

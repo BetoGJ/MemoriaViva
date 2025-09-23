@@ -186,6 +186,24 @@
                         android:textSize="18sp"
                         android:textColor="@color/text_primary"
                         tools:text="Internações Recentes: Nenhuma"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/textViewUserComorbiditiesDisplay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        tools:text="Comorbidades: Nenhuma"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/textViewUserAllergiesDisplay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        tools:text="Alergias: Nenhuma"
                         android:layout_marginBottom="16dp"/>
 
                     <Button
