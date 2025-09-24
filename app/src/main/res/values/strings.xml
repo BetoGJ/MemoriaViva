@@ -10,7 +10,7 @@
     <string name="user_weight_display">Peso: %.1f kg</string>
     <string name="user_surgeries_display">Cirurgias Recentes: %1$s</string>
     <string name="user_hospitalizations_display">Internações Recentes: %1$s</string>
-    <string name="user_comorbidities_display">Comorbidades: %1$s</string>
+    <string name="user_comorbidities_display">Problemas de Saúde: %1$s</string>
     <string name="user_allergies_display">Alergias: %1$s</string>
     <string name="none_reported">Nenhuma informada</string>
     <string name="patient_data_title">Dados do Paciente</string>
