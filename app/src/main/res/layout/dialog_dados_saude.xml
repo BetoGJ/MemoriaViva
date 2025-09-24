@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🩸 Pressão Arterial (ex: 120/80)"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+        
+        <EditText
+            android:id="@+id/etPressaoArterial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="120/80"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="💓 Frequência Cardíaca (bpm)"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+        
+        <EditText
+            android:id="@+id/etFrequenciaCardiaca"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="72"
+            android:inputType="number"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🫁 Frequência Respiratória (rpm)"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+        
+        <EditText
+            android:id="@+id/etFrequenciaRespiratoria"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="16"
+            android:inputType="number"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🩸 Saturação (%)"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+        
+        <EditText
+            android:id="@+id/etSaturacao"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="98"
+            android:inputType="number"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🌡️ Temperatura (°C)"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+        
+        <EditText
+            android:id="@+id/etTemperatura"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="36.5"
+            android:inputType="numberDecimal"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚖️ Peso (kg)"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+        
+        <EditText
+            android:id="@+id/etPeso"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="70.5"
+            android:inputType="numberDecimal"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📏 Altura (cm)"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+        
+        <EditText
+            android:id="@+id/etAltura"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="170"
+            android:inputType="number"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="💬 Queixas/Observações"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+        
+        <EditText
+            android:id="@+id/etQueixas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Descreva sintomas ou observações..."
+            android:minLines="3"
+            android:gravity="top"
+            android:layout_marginBottom="12dp"/>
+
+    </LinearLayout>
+</ScrollView>

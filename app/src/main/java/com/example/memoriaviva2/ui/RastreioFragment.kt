@@ -57,12 +57,14 @@ class RastreioFragment : Fragment() {
 
     private fun setupButtons() {
         binding.btnCuidador.setOnClickListener {
+            resetTrackingState()
             isCuidadorMode = true
             binding.layoutDistanceControl.visibility = android.view.View.VISIBLE
             showDistanceDialog()
         }
 
         binding.btnPaciente.setOnClickListener {
+            resetTrackingState()
             isCuidadorMode = false
             binding.layoutDistanceControl.visibility = android.view.View.GONE
             toggleLocationSharing()
@@ -269,7 +271,72 @@ class RastreioFragment : Fragment() {
     private fun stopTracking() {
         isTracking = false
         binding.btnPaciente.text = getString(R.string.start_monitoring)
+        
+        // Reset all tracking state
+        fusedLocationClient.removeLocationUpdates(object : LocationCallback() {})
+        currentTrackingCode = null
+        pacienteLocation = null
+        cuidadorLocation = null
+        
+        // Remove Firebase listener
+        locationListener?.let { listener ->
+            currentTrackingCode?.let { code ->
+                database.child("localiza_nois").child(code).removeEventListener(listener)
+            }
+        }
+        locationListener = null
+        
+        // Reset UI
+        binding.txtDistanceDisplay.text = "0m"
+        binding.txtStatus.text = "DESCONECTADO"
+        binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#FFEBEE"))
+        binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#D32F2F"))
+        binding.txtLocationInfo.text = "Compartilhamento parado"
+        
+        // Stop any active alarms
+        if (isAlarmActive) {
+            stopAlarm()
+        }
+        
         Toast.makeText(context, getString(R.string.location_sharing_disabled), Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun resetTrackingState() {
+        // Stop any active tracking
+        if (isTracking) {
+            stopTracking()
+        }
+        
+        // Remove location updates
+        fusedLocationClient.removeLocationUpdates(object : LocationCallback() {})
+        
+        // Clear all location data
+        currentTrackingCode = null
+        pacienteLocation = null
+        cuidadorLocation = null
+        
+        // Remove Firebase listeners
+        locationListener?.let { listener ->
+            currentTrackingCode?.let { code ->
+                database.child("localiza_nois").child(code).removeEventListener(listener)
+            }
+        }
+        locationListener = null
+        
+        // Reset UI state
+        binding.txtDistanceDisplay.text = "0m"
+        binding.txtStatus.text = "DESCONECTADO"
+        binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#FFEBEE"))
+        binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#D32F2F"))
+        binding.txtLocationInfo.text = "Selecione um modo"
+        binding.btnPaciente.text = getString(R.string.start_monitoring)
+        
+        // Stop alarms
+        if (isAlarmActive) {
+            stopAlarm()
+        }
+        
+        isTracking = false
     }
     
     private fun showDistanceDialog() {
