@@ -10,14 +10,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/txtTitulo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Tela de Rastreio"
-            android:textSize="34sp"
-            android:textStyle="bold" />
+
             
         <LinearLayout
             android:id="@+id/layoutDistanceControl"
@@ -71,6 +64,8 @@
             android:layout_height="wrap_content"
             android:text="Entrar como Paciente"
             android:textSize="24sp" />
+            
+
 
     </LinearLayout>
 
@@ -90,27 +85,40 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:gravity="center"
         android:background="#F5F5F5">
         
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="DISTÂNCIA ATUAL"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#666666"
-            android:layout_marginBottom="16dp"/>
+        <WebView
+            android:id="@+id/webViewMapaRastreio"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:visibility="gone"/>
             
-        <TextView
-            android:id="@+id/txtDistanceDisplay"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="-- metros"
-            android:textSize="48sp"
-            android:textStyle="bold"
-            android:textColor="#2E7D32"
-            android:gravity="center"/>
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DISTÂNCIA ATUAL"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#666666"
+                android:layout_marginBottom="8dp"/>
+                
+            <TextView
+                android:id="@+id/txtDistanceDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-- metros"
+                android:textSize="36sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"
+                android:gravity="center"/>
+        </LinearLayout>
     </LinearLayout>
 
 

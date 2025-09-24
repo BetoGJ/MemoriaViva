@@ -61,4 +61,10 @@
         android:name="com.example.memoriaviva2.ui.saude.MonitoramentoSaudeFragment"
         android:label="Monitoramento de Saúde"
         tools:layout="@layout/fragment_monitoramento_saude" />
+        
+    <fragment
+        android:id="@+id/navigation_mapa_simplificado"
+        android:name="com.example.memoriaviva2.ui.MapaSimplificadoFragment"
+        android:label="Mapa Simplificado"
+        tools:layout="@layout/fragment_mapa_simplificado" />
 </navigation>

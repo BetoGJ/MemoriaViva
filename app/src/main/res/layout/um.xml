@@ -22,21 +22,31 @@
         android:id="@+id/textViewFragmentTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonAddDietItem"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Adicionar Alimento à Dieta"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewFragmentTitle" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewDietItems"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/textViewFragmentTitle"
-        app:layout_constraintBottom_toTopOf="@+id/buttonAddDietItem"
+        app:layout_constraintTop_toBottomOf="@+id/buttonAddDietItem"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_diet" />
@@ -47,24 +57,11 @@
         android:layout_height="wrap_content"
         android:text="Nenhum item na dieta ainda."
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/textViewFragmentTitle"
-        app:layout_constraintBottom_toTopOf="@+id/buttonAddDietItem"
+        app:layout_constraintTop_toBottomOf="@+id/buttonAddDietItem"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:visibility="visible"/>
-
-    <Button
-        android:id="@+id/buttonAddDietItem"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="48dp"
-        android:text="Adicionar Alimento à Dieta"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

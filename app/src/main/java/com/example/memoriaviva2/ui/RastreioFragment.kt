@@ -18,6 +18,7 @@ import android.content.Context
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import android.webkit.WebView
 
 
 class RastreioFragment : Fragment() {
@@ -36,6 +37,7 @@ class RastreioFragment : Fragment() {
     private var isAlarmActive = false
     private var isCuidadorMode = false
     private lateinit var locationNotificationManager: LocationNotificationManager
+    private lateinit var webViewMapaRastreio: WebView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,8 +51,9 @@ class RastreioFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         locationNotificationManager = LocationNotificationManager(requireContext())
+        webViewMapaRastreio = view.findViewById(R.id.webViewMapaRastreio)
+        setupWebView()
         setupButtons()
-
     }
     
 
@@ -60,6 +63,7 @@ class RastreioFragment : Fragment() {
             resetTrackingState()
             isCuidadorMode = true
             binding.layoutDistanceControl.visibility = android.view.View.VISIBLE
+            webViewMapaRastreio.visibility = android.view.View.VISIBLE
             showDistanceDialog()
         }
 
@@ -67,8 +71,11 @@ class RastreioFragment : Fragment() {
             resetTrackingState()
             isCuidadorMode = false
             binding.layoutDistanceControl.visibility = android.view.View.GONE
+            webViewMapaRastreio.visibility = android.view.View.GONE
             toggleLocationSharing()
         }
+        
+
         
 
         
@@ -310,6 +317,11 @@ class RastreioFragment : Fragment() {
         // Remove location updates
         fusedLocationClient.removeLocationUpdates(object : LocationCallback() {})
         
+        // Remove data from Firebase if was sharing as patient
+        currentTrackingCode?.let { code ->
+            database.child("localiza_nois").child(code).removeValue()
+        }
+        
         // Clear all location data
         currentTrackingCode = null
         pacienteLocation = null
@@ -324,7 +336,7 @@ class RastreioFragment : Fragment() {
         locationListener = null
         
         // Reset UI state
-        binding.txtDistanceDisplay.text = "0m"
+        binding.txtDistanceDisplay.text = "-- metros"
         binding.txtStatus.text = "DESCONECTADO"
         binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#FFEBEE"))
         binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#D32F2F"))
@@ -396,6 +408,9 @@ class RastreioFragment : Fragment() {
             }
         }
         
+        // Para qualquer compartilhamento de localização própria
+        fusedLocationClient.removeLocationUpdates(object : LocationCallback() {})
+        
         currentTrackingCode = code
         binding.txtStatus.text = "Conectando ao paciente: $code"
         binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#FFF3E0"))
@@ -412,7 +427,7 @@ class RastreioFragment : Fragment() {
         // Novo listener para atualizações em tempo real
         locationListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
+                if (snapshot.exists() && isCuidadorMode) {
                     val latitude = snapshot.child("latitude").getValue(Double::class.java)
                     val longitude = snapshot.child("longitude").getValue(Double::class.java)
                     val timestamp = snapshot.child("timestamp").getValue(Long::class.java)
@@ -426,6 +441,7 @@ class RastreioFragment : Fragment() {
                         
                         android.util.Log.d("PacienteLocation", "Nova localização: $latitude, $longitude")
                         showLocationConnected(latitude, longitude, timestamp, "Paciente: $code")
+                        updateWebViewMap(latitude, longitude)
                         checkGeofence()
                     } else {
                         showLocationNotAvailable()
@@ -640,6 +656,12 @@ class RastreioFragment : Fragment() {
         isAlarmActive = false
         binding.btnStopAlarm.visibility = android.view.View.GONE
         locationNotificationManager.cancelLocationAlert()
+        
+        // Reset status visual
+        binding.txtStatus.text = "CONECTADO (Limite: ${alarmDistance.toInt()}m)"
+        binding.txtStatus.setBackgroundColor(android.graphics.Color.parseColor("#E8F5E8"))
+        binding.txtStatus.setTextColor(android.graphics.Color.parseColor("#2E7D32"))
+        
         Toast.makeText(context, "Alarme desativado", Toast.LENGTH_SHORT).show()
     }
     
@@ -705,6 +727,33 @@ class RastreioFragment : Fragment() {
         _binding = null
     }
     
+    private fun setupWebView() {
+        webViewMapaRastreio.settings.javaScriptEnabled = true
+        
+        val htmlContent = """
+            <html>
+            <body style="margin:0; padding:5px; font-family:Arial; text-align:center;">
+                <div id="info" style="font-size:12px; margin-bottom:5px;">Aguardando localização...</div>
+                <iframe id="map" width="100%" height="200" frameborder="0" 
+                        src="about:blank"></iframe>
+                <script>
+                    function updateMap(lat, lng) {
+                        document.getElementById('info').innerHTML = '📍 Paciente: ' + lat.toFixed(4) + ', ' + lng.toFixed(4);
+                        var url = 'https://maps.google.com/maps?q=' + lat + ',' + lng + '&output=embed';
+                        document.getElementById('map').src = url;
+                    }
+                </script>
+            </body>
+            </html>
+        """.trimIndent()
+        
+        webViewMapaRastreio.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
+    }
+    
+    private fun updateWebViewMap(latitude: Double, longitude: Double) {
+        webViewMapaRastreio.evaluateJavascript("updateMap($latitude, $longitude)", null)
+    }
+
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
     }
