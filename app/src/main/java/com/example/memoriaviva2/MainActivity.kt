@@ -210,6 +210,8 @@ class MainActivity : AppCompatActivity() {
             bottomNavView.setOnItemSelectedListener { item ->
                 try {
                     navController.navigate(item.itemId)
+                    // Clear side navigation selection
+                    sideNavView?.checkedItem?.isChecked = false
                     true
                 } catch (e: Exception) {
                     Log.e(TAG, "Bottom navigation error for item: ${item.itemId}", e)
