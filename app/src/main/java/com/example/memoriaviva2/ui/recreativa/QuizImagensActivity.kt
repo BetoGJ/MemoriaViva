@@ -20,14 +20,20 @@ class QuizImagensActivity : AppCompatActivity() {
     private var perguntaAtual = 0
     private var pontuacao = 0
     
-    // Dados do quiz (imagem, pergunta, opções, resposta correta)
+    // Dados do quiz com imagens personalizadas
     private val perguntas = arrayOf(
-        QuizItem(android.R.drawable.ic_menu_camera, "O que é isto?", 
-                arrayOf("Câmera", "Telefone", "Rádio"), 0),
-        QuizItem(android.R.drawable.ic_menu_call, "Para que serve?", 
-                arrayOf("Fotografar", "Ligar", "Ouvir música"), 1),
-        QuizItem(android.R.drawable.ic_menu_gallery, "O que representa?", 
-                arrayOf("Galeria", "Calendário", "Calculadora"), 0)
+        QuizItem(R.drawable.casa, "O que é isto?", 
+                arrayOf("Casa", "Carro", "Telefone"), 0),
+        QuizItem(R.drawable.flor, "O que é isto?", 
+                arrayOf("Flor", "Folha", "Pedra"), 0),
+        QuizItem(R.drawable.gato, "Que animal é este?", 
+                arrayOf("Cachorro", "Gato", "Pássaro"), 1),
+        QuizItem(R.drawable.arvore, "O que vemos no jardim?", 
+                arrayOf("Árvore", "Mesa", "Carro"), 0),
+        QuizItem(R.drawable.sol, "O que brilha no céu?", 
+                arrayOf("Sol", "Lua", "Estrela"), 0),
+        QuizItem(R.drawable.coracao, "Símbolo do amor?", 
+                arrayOf("Coração", "Flor", "Casa"), 0)
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

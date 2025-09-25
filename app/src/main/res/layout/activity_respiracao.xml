@@ -43,7 +43,7 @@
         android:textSize="20sp"
         android:textColor="@color/black"
         android:textAlignment="center"
-        android:layout_marginBottom="48dp" />
+        android:layout_marginBottom="80dp" />
 
     <!-- Círculo de respiração -->
     <View
@@ -51,7 +51,8 @@
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:background="@drawable/circulo_respiracao"
-        android:layout_marginBottom="48dp" />
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="80dp" />
 
     <LinearLayout
         android:layout_width="match_parent"

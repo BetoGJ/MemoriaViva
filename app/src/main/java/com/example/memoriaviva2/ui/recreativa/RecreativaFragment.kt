@@ -44,9 +44,5 @@ class RecreativaFragment : Fragment() {
         view.findViewById<Button>(R.id.btnAlongamento).setOnClickListener {
             startActivity(Intent(requireContext(), AlongamentoActivity::class.java))
         }
-        
-        view.findViewById<Button>(R.id.btnAlbumMemorias).setOnClickListener {
-            startActivity(Intent(requireContext(), AlbumMemoriasActivity::class.java))
-        }
     }
 }

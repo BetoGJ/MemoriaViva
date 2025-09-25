@@ -3,6 +3,7 @@ package com.example.memoriaviva2.ui.recreativa
 import android.os.Bundle
 import android.widget.GridLayout
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.memoriaviva2.R
@@ -17,16 +18,20 @@ class JogoMemoriaActivity : AppCompatActivity() {
     private var score = 0
     private var matches = 0
     
-    // Array de imagens para o jogo (usar ícones do Android)
+    // Array de imagens para o jogo da memória
     private val cardImages = arrayOf(
-        android.R.drawable.ic_menu_camera,
-        android.R.drawable.ic_menu_gallery,
-        android.R.drawable.ic_menu_call,
-        android.R.drawable.ic_menu_compass,
-        android.R.drawable.ic_menu_camera,
-        android.R.drawable.ic_menu_gallery,
-        android.R.drawable.ic_menu_call,
-        android.R.drawable.ic_menu_compass
+        R.drawable.flor,
+        R.drawable.gato,
+        R.drawable.arvore,
+        R.drawable.sol,
+        R.drawable.coracao,
+        R.drawable.casainha,
+        R.drawable.flor,
+        R.drawable.gato,
+        R.drawable.arvore,
+        R.drawable.sol,
+        R.drawable.coracao,
+        R.drawable.casainha
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,11 +72,13 @@ class JogoMemoriaActivity : AppCompatActivity() {
         for (i in cardImages.indices) {
             val card = ImageButton(this).apply {
                 layoutParams = GridLayout.LayoutParams().apply {
-                    width = 200
-                    height = 200
+                    width = 180
+                    height = 180
                     setMargins(8, 8, 8, 8)
                 }
                 setImageResource(android.R.drawable.ic_menu_help) // Carta virada
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                setPadding(4, 4, 4, 4)
                 tag = cardImages[i] // Guardar a imagem real
                 setOnClickListener { onCardClick(this) }
             }
@@ -84,23 +91,20 @@ class JogoMemoriaActivity : AppCompatActivity() {
         // Se a carta já foi virada, ignorar
         if (card.tag == null) return
         
-        try {
-            val cardImage = card.tag as Int
-            if (card.drawable.constantState == getDrawable(cardImage)?.constantState) {
-                return
-            }
-        } catch (e: Exception) {
+        // Verificar se já está virada
+        val cardImage = card.tag as Int
+        if (card.drawable?.constantState == getDrawable(cardImage)?.constantState) {
             return
         }
         
         // Virar a carta (mostrar imagem real)
-        card.setImageResource(card.tag as Int)
+        card.setImageResource(cardImage)
         
         when {
             firstCard == null -> {
                 firstCard = card
             }
-            secondCard == null -> {
+            secondCard == null && card != firstCard -> {
                 secondCard = card
                 checkMatch()
             }

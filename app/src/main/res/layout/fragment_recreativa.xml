@@ -182,16 +182,6 @@
                     android:text="💬 Frase do Dia"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="12dp"
-                    android:backgroundTint="@color/purple_700" />
-
-                <Button
-                    android:id="@+id/btnAlbumMemorias"
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:text="📸 Álbum de Memórias"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
                     android:backgroundTint="@color/purple_700" />
 
             </LinearLayout>
