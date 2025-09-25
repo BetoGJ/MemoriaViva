@@ -52,7 +52,8 @@ class WorkingRoutineFragment : Fragment() {
         }
         
         btnShowReport.setOnClickListener {
-            showReport()
+            val intent = android.content.Intent(requireContext(), com.example.memoriaviva2.RoutineReportActivity::class.java)
+            startActivity(intent)
         }
     }
 

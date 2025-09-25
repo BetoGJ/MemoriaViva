@@ -64,7 +64,7 @@ class BackupManager {
             RegistroData(
                 nome = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_NAME, "") ?: "",
                 idade = sharedPrefs.getInt(AppPreferencesKeys.KEY_USER_AGE, 0),
-                peso = sharedPrefs.getFloat(AppPreferencesKeys.KEY_USER_WEIGHT, 0f),
+                endereco = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_ADDRESS, "") ?: "",
                 cirurgiasRecentes = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, "") ?: "",
                 internacoes = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, "") ?: "",
                 comorbidades = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, "") ?: "",
@@ -120,7 +120,7 @@ class BackupManager {
                 putBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, true)
                 putString(AppPreferencesKeys.KEY_USER_NAME, registro.nome)
                 putInt(AppPreferencesKeys.KEY_USER_AGE, registro.idade)
-                putFloat(AppPreferencesKeys.KEY_USER_WEIGHT, registro.peso)
+                putString(AppPreferencesKeys.KEY_USER_ADDRESS, registro.endereco)
                 putString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, registro.cirurgiasRecentes)
                 putString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, registro.internacoes)
                 putString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, registro.comorbidades)

@@ -7,7 +7,7 @@
     <string name="welcome_message">Bem-vindo(a), %1$s!</string>
     <string name="user_name_display">Nome: %1$s</string>
     <string name="user_age_display">Idade: %1$d anos</string>
-    <string name="user_weight_display">Peso: %.1f kg</string>
+    <string name="user_address_display">Endereço: %1$s</string>
     <string name="user_surgeries_display">Cirurgias Recentes: %1$s</string>
     <string name="user_hospitalizations_display">Internações Recentes: %1$s</string>
     <string name="user_comorbidities_display">Problemas de Saúde: %1$s</string>

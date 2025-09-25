@@ -54,10 +54,7 @@ class MedicationFragment : Fragment() {
             showAddMedicationDialog()
         }
         
-        btnShowReport.setOnClickListener {
-            val intent = Intent(requireContext(), RoutineReportActivity::class.java)
-            startActivity(intent)
-        }
+        btnShowReport.visibility = View.GONE
     }
 
     private fun loadMedications() {

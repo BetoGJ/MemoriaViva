@@ -55,12 +55,14 @@
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/nav_view_bottom"
             android:layout_width="match_parent"
-            android:layout_height="88dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
             android:background="?android:attr/windowBackground"
             app:itemTextAppearanceActive="@style/BottomNavigationTextActive"
             app:itemTextAppearanceInactive="@style/BottomNavigationTextInactive"
-            app:itemIconSize="28dp"
+            app:itemIconSize="30dp"
+            app:itemPaddingTop="14dp"
+            app:itemPaddingBottom="10dp"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_nav_menu" /> <!-- SEU MENU DA BOTTOM NAV -->
 
@@ -167,7 +169,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="18sp"
                         android:textColor="@color/text_primary"
-                        tools:text="Peso: 70kg"
+                        tools:text="Endereço: Rua das Flores, 123"
                         android:layout_marginBottom="8dp"/>
 
                     <TextView

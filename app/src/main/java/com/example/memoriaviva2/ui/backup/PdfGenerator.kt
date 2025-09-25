@@ -56,13 +56,13 @@ class PdfGenerator(private val context: Context) {
         val sharedPrefs = context.getSharedPreferences(AppPreferencesKeys.PREFS_USER_DATA, Context.MODE_PRIVATE)
         val name = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_NAME, "Informação não notificada") ?: "Informação não notificada"
         val age = sharedPrefs.getInt(AppPreferencesKeys.KEY_USER_AGE, 0)
-        val weight = sharedPrefs.getFloat(AppPreferencesKeys.KEY_USER_WEIGHT, 0f)
+        val address = sharedPrefs.getString(AppPreferencesKeys.KEY_USER_ADDRESS, "") ?: ""
         
         drawText("DADOS DO PACIENTE", headerPaint)
         currentY += 25
         drawText("Nome: $name", normalPaint)
         drawText("Idade: ${if (age > 0) "$age anos" else "Informação não notificada"}", normalPaint)
-        drawText("Peso: ${if (weight > 0) "${weight}kg" else "Informação não notificada"}", normalPaint)
+        drawText("Endereço: ${if (address.isNotEmpty()) address else "Informação não notificada"}", normalPaint)
         currentY += 30
         
         drawText("HISTÓRICO MÉDICO", headerPaint)
@@ -94,8 +94,10 @@ class PdfGenerator(private val context: Context) {
         currentY += 25
         
         try {
-            val routineRepository = RoutineRepository(context)
-            val routines = routineRepository.getAllActivities()
+            val routinePrefs = context.getSharedPreferences("routine_prefs", Context.MODE_PRIVATE)
+            val rotinaJson = routinePrefs.getString("activities", "[]")
+            val type = object : com.google.gson.reflect.TypeToken<List<com.example.memoriaviva2.ui.dois.SimpleActivity>>() {}.type
+            val routines = com.google.gson.Gson().fromJson<List<com.example.memoriaviva2.ui.dois.SimpleActivity>>(rotinaJson, type) ?: emptyList()
             
             if (routines.isNotEmpty()) {
                 routines.forEach { routine ->

@@ -21,7 +21,7 @@ data class BackupData(
 data class RegistroData(
     val nome: String,
     val idade: Int,
-    val peso: Float,
+    val endereco: String,
     val cirurgiasRecentes: String,
     val internacoes: String,
     val comorbidades: String,

@@ -47,7 +47,7 @@ class HomeFragment : Fragment() {
         
         val nome = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_NAME, "Usuário")
         val idade = sharedPreferences.getInt(AppPreferencesKeys.KEY_USER_AGE, 0)
-        val peso = sharedPreferences.getFloat(AppPreferencesKeys.KEY_USER_WEIGHT, 0f)
+        val endereco = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_ADDRESS, "")
         val cirurgias = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, "")
         val internacoes = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, "")
         val comorbidades = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, "")
@@ -55,7 +55,7 @@ class HomeFragment : Fragment() {
         
         binding.textViewNomeIdoso.text = "Nome: $nome"
         binding.textViewIdadeIdoso.text = "Idade: $idade anos"
-        binding.textViewCidadeIdoso.text = "Peso: ${peso}kg"
+        binding.textViewCidadeIdoso.text = "Endereço: ${endereco?.ifEmpty { "Não informado" }}"
         
         binding.textViewInternacoesIdoso.text = if (internacoes.isNullOrEmpty()) {
             "Nenhuma internação registrada."

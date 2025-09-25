@@ -21,8 +21,8 @@ class RegistrationActivity : AppCompatActivity() {
     private lateinit var editTextNameReg: TextInputEditText
     private lateinit var textInputLayoutAgeReg: TextInputLayout
     private lateinit var editTextAgeReg: TextInputEditText
-    private lateinit var textInputLayoutWeightReg: TextInputLayout
-    private lateinit var editTextWeightReg: TextInputEditText
+    private lateinit var textInputLayoutAddressReg: TextInputLayout
+    private lateinit var editTextAddressReg: TextInputEditText
     private lateinit var editTextRecentSurgeriesReg: TextInputEditText
     private lateinit var editTextRecentHospitalizationsReg: TextInputEditText
     private lateinit var editTextComorbiditiesReg: TextInputEditText
@@ -69,8 +69,8 @@ class RegistrationActivity : AppCompatActivity() {
                 editTextNameReg = findViewById(R.id.editTextNameReg)
                 textInputLayoutAgeReg = findViewById(R.id.textInputLayoutAgeReg)
                 editTextAgeReg = findViewById(R.id.editTextAgeReg)
-                textInputLayoutWeightReg = findViewById(R.id.textInputLayoutWeightReg)
-                editTextWeightReg = findViewById(R.id.editTextWeightReg)
+                textInputLayoutAddressReg = findViewById(R.id.textInputLayoutWeightReg)
+                editTextAddressReg = findViewById(R.id.editTextWeightReg)
                 editTextRecentSurgeriesReg = findViewById(R.id.editTextRecentSurgeriesReg)
                 editTextRecentHospitalizationsReg = findViewById(R.id.editTextRecentHospitalizationsReg)
                 editTextComorbiditiesReg = findViewById(R.id.editTextComorbiditiesReg)
@@ -103,7 +103,7 @@ class RegistrationActivity : AppCompatActivity() {
         
         val name = editTextNameReg.text.toString().trim()
         val ageStr = editTextAgeReg.text.toString().trim()
-        val weightStr = editTextWeightReg.text.toString().trim()
+        val address = editTextAddressReg.text.toString().trim()
         val surgeries = editTextRecentSurgeriesReg.text.toString().trim()
         val hospitalizations = editTextRecentHospitalizationsReg.text.toString().trim()
         val comorbidities = editTextComorbiditiesReg.text.toString().trim()
@@ -126,12 +126,11 @@ class RegistrationActivity : AppCompatActivity() {
             textInputLayoutAgeReg.error = null
         }
 
-        val weight = weightStr.toDoubleOrNull()
-        if (weightStr.isEmpty() || weight == null || weight <= 0.0 || weight > 500.0) {
-            textInputLayoutWeightReg.error = "Peso inválido"
+        if (address.isEmpty()) {
+            textInputLayoutAddressReg.error = "Endereço é obrigatório"
             isValid = false
         } else {
-            textInputLayoutWeightReg.error = null
+            textInputLayoutAddressReg.error = null
         }
 
         if (!isValid) {
@@ -145,7 +144,7 @@ class RegistrationActivity : AppCompatActivity() {
             editor.putBoolean(AppPreferencesKeys.KEY_IS_USER_REGISTERED, true)
             editor.putString(AppPreferencesKeys.KEY_USER_NAME, name)
             editor.putInt(AppPreferencesKeys.KEY_USER_AGE, age!!)
-            editor.putFloat(AppPreferencesKeys.KEY_USER_WEIGHT, weight!!.toFloat())
+            editor.putString(AppPreferencesKeys.KEY_USER_ADDRESS, address)
             editor.putString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, surgeries)
             editor.putString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, hospitalizations)
             editor.putString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, comorbidities)
@@ -171,7 +170,7 @@ class RegistrationActivity : AppCompatActivity() {
         try {
             val name = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_NAME, "")
             val age = sharedPreferences.getInt(AppPreferencesKeys.KEY_USER_AGE, 0)
-            val weight = sharedPreferences.getFloat(AppPreferencesKeys.KEY_USER_WEIGHT, 0f)
+            val address = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_ADDRESS, "")
             val surgeries = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, "")
             val hospitalizations = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, "")
             val comorbidities = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, "")
@@ -179,7 +178,7 @@ class RegistrationActivity : AppCompatActivity() {
             
             editTextNameReg.setText(name)
             if (age > 0) editTextAgeReg.setText(age.toString())
-            if (weight > 0) editTextWeightReg.setText(weight.toString())
+            editTextAddressReg.setText(address)
             editTextRecentSurgeriesReg.setText(surgeries)
             editTextRecentHospitalizationsReg.setText(hospitalizations)
             editTextComorbiditiesReg.setText(comorbidities)

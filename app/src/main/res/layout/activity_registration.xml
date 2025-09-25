@@ -96,14 +96,14 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Peso (kg, ex: 65.5)"
+                        android:hint="Endereço Completo"
                         app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Body1">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/editTextWeightReg"
                             android:layout_width="match_parent"
                             android:layout_height="64dp"
                             android:textSize="18sp"
-                            android:inputType="numberDecimal" />
+                            android:inputType="textPostalAddress|textCapWords" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>

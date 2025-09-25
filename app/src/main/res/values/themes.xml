@@ -24,12 +24,12 @@
 
     <!-- Estilos para navegação inferior acessível para idosos -->
     <style name="BottomNavigationTextActive" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="BottomNavigationTextInactive" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:textSize">11sp</item>
+        <item name="android:textSize">13sp</item>
     </style>
 
 </resources>

@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textViewWelcome: TextView
     private lateinit var textViewUserNameDisplay: TextView
     private lateinit var textViewUserAgeDisplay: TextView
-    private lateinit var textViewUserWeightDisplay: TextView
+    private lateinit var textViewUserAddressDisplay: TextView
     private lateinit var textViewUserSurgeriesDisplay: TextView
     private lateinit var textViewUserHospitalizationsDisplay: TextView
     private lateinit var textViewUserComorbiditiesDisplay: TextView
@@ -129,7 +129,7 @@ class MainActivity : AppCompatActivity() {
             textViewWelcome = findViewById(R.id.textViewWelcome)
             textViewUserNameDisplay = findViewById(R.id.textViewUserNameDisplay)
             textViewUserAgeDisplay = findViewById(R.id.textViewUserAgeDisplay)
-            textViewUserWeightDisplay = findViewById(R.id.textViewUserWeightDisplay)
+            textViewUserAddressDisplay = findViewById(R.id.textViewUserWeightDisplay)
             textViewUserSurgeriesDisplay = findViewById(R.id.textViewUserSurgeriesDisplay)
             textViewUserHospitalizationsDisplay = findViewById(R.id.textViewUserHospitalizationsDisplay)
             textViewUserComorbiditiesDisplay = findViewById(R.id.textViewUserComorbiditiesDisplay)
@@ -300,7 +300,7 @@ class MainActivity : AppCompatActivity() {
     private fun loadAndDisplayUserData() {
         val name = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_NAME, "N/A")
         val age = sharedPreferences.getInt(AppPreferencesKeys.KEY_USER_AGE, 0)
-        val weight = sharedPreferences.getFloat(AppPreferencesKeys.KEY_USER_WEIGHT, 0f)
+        val address = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_ADDRESS, "")
         val surgeries = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES, "")
         val hospitalizations = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS, "")
         val comorbidities = sharedPreferences.getString(AppPreferencesKeys.KEY_USER_COMORBIDITIES, "")
@@ -309,7 +309,7 @@ class MainActivity : AppCompatActivity() {
         textViewWelcome.text = getString(R.string.welcome_message, name)
         textViewUserNameDisplay.text = getString(R.string.user_name_display, name)
         textViewUserAgeDisplay.text = getString(R.string.user_age_display, age)
-        textViewUserWeightDisplay.text = getString(R.string.user_weight_display, weight)
+        textViewUserAddressDisplay.text = getString(R.string.user_address_display, address?.ifEmpty { getString(R.string.none_reported) })
         textViewUserSurgeriesDisplay.text = getString(R.string.user_surgeries_display, surgeries?.ifEmpty { getString(R.string.none_reported) })
         textViewUserHospitalizationsDisplay.text = getString(R.string.user_hospitalizations_display, hospitalizations?.ifEmpty { getString(R.string.none_reported) })
         textViewUserComorbiditiesDisplay.text = getString(R.string.user_comorbidities_display, comorbidities?.ifEmpty { getString(R.string.none_reported) })
@@ -363,7 +363,7 @@ class MainActivity : AppCompatActivity() {
             remove(AppPreferencesKeys.KEY_IS_USER_REGISTERED)
             remove(AppPreferencesKeys.KEY_USER_NAME)
             remove(AppPreferencesKeys.KEY_USER_AGE)
-            remove(AppPreferencesKeys.KEY_USER_WEIGHT)
+            remove(AppPreferencesKeys.KEY_USER_ADDRESS)
             remove(AppPreferencesKeys.KEY_USER_RECENT_SURGERIES)
             remove(AppPreferencesKeys.KEY_USER_RECENT_HOSPITALIZATIONS)
             apply()
