@@ -50,7 +50,17 @@ class SimpleRoutineAdapter(
             }
             
             btnRemove.setOnClickListener {
-                onRemove(activity)
+                androidx.appcompat.app.AlertDialog.Builder(itemView.context)
+                    .setTitle("Remover Atividade")
+                    .setMessage("Tem certeza que deseja remover ${activity.name}?")
+                    .setPositiveButton("Remover") { dialog, _ ->
+                        onRemove(activity)
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("Cancelar") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
             }
         }
     }

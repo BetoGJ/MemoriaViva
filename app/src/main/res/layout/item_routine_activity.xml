@@ -18,43 +18,66 @@
             android:id="@+id/tv_routine_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textSize="18sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:text="08:00" />
 
-        <TextView
-            android:id="@+id/tv_routine_name"
+        <LinearLayout
+            android:id="@+id/layout_routine_info"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:textColor="?android:attr/textColorPrimary"
-            app:layout_constraintEnd_toStartOf="@+id/cb_routine_is_done"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toStartOf="@+id/layout_buttons"
             app:layout_constraintStart_toEndOf="@+id/tv_routine_time"
-            app:layout_constraintTop_toTopOf="@+id/tv_routine_time"
-            tools:text="Caminhada Matinal" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
 
-        <TextView
-            android:id="@+id/tv_routine_classification"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-            android:textColor="?android:attr/textColorSecondary"
-            app:layout_constraintEnd_toEndOf="@+id/tv_routine_name"
-            app:layout_constraintStart_toStartOf="@+id/tv_routine_name"
-            app:layout_constraintTop_toBottomOf="@+id/tv_routine_name"
-            tools:text="Exercício físico" />
+            <TextView
+                android:id="@+id/tv_routine_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="?android:attr/textColorPrimary"
+                tools:text="Caminhada Matinal" />
 
-        <CheckBox
-            android:id="@+id/cb_routine_is_done"
+            <TextView
+                android:id="@+id/tv_routine_classification"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="?android:attr/textColorSecondary"
+                tools:text="Exercício físico" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_buttons"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <CheckBox
+                android:id="@+id/cb_routine_is_done"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btn_remove_routine"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="X"
+                android:textSize="16sp" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

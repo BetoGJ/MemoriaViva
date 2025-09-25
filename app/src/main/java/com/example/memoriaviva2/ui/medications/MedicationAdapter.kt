@@ -50,7 +50,17 @@ class MedicationAdapter(
             }
             
             btnRemove.setOnClickListener {
-                onRemove(medication)
+                androidx.appcompat.app.AlertDialog.Builder(itemView.context)
+                    .setTitle("Remover Remédio")
+                    .setMessage("Tem certeza que deseja remover ${medication.nome}?")
+                    .setPositiveButton("Remover") { dialog, _ ->
+                        onRemove(medication)
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("Cancelar") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
             }
         }
     }
