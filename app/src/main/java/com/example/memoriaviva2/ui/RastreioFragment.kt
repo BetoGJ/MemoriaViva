@@ -68,11 +68,17 @@ class RastreioFragment : Fragment() {
         }
 
         binding.btnPaciente.setOnClickListener {
-            resetTrackingState()
-            isCuidadorMode = false
-            binding.layoutDistanceControl.visibility = android.view.View.GONE
-            webViewMapaRastreio.visibility = android.view.View.GONE
-            toggleLocationSharing()
+            if (!isTracking) {
+                // Iniciar compartilhamento
+                resetTrackingState()
+                isCuidadorMode = false
+                binding.layoutDistanceControl.visibility = android.view.View.GONE
+                webViewMapaRastreio.visibility = android.view.View.GONE
+                toggleLocationSharing()
+            } else {
+                // Parar compartilhamento - pede código
+                showStopSharingCodeDialog()
+            }
         }
         
 
@@ -81,6 +87,10 @@ class RastreioFragment : Fragment() {
         
         binding.btnStopAlarm.setOnClickListener {
             stopAlarm()
+        }
+        
+        binding.btnStopTracking.setOnClickListener {
+            showStopTrackingConfirmation()
         }
     }
 
@@ -156,7 +166,7 @@ class RastreioFragment : Fragment() {
         if (!isTracking) {
             showTrackingKeyDialog()
         } else {
-            stopTracking()
+            showStopTrackingConfirmation()
         }
     }
     
@@ -172,9 +182,58 @@ class RastreioFragment : Fragment() {
             .setPositiveButton("Conectar") { _, _ ->
                 val key = input.text.toString().trim().uppercase()
                 if (validateCode(key)) {
-                    startTracking(key)
+                    showStartTrackingConfirmation(key)
                 } else {
                     Toast.makeText(context, "Código deve ter exatamente 4 caracteres", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+    
+    private fun showStartTrackingConfirmation(key: String) {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        builder.setTitle("Confirmar Compartilhamento")
+            .setMessage("Deseja iniciar o compartilhamento da sua localização com o código: $key?")
+            .setPositiveButton("Sim") { _, _ ->
+                startTracking(key)
+            }
+            .setNegativeButton("Não", null)
+            .show()
+    }
+    
+    private fun showStopTrackingConfirmation() {
+        if (!isCuidadorMode) {
+            // Paciente precisa confirmar com código
+            showStopSharingCodeDialog()
+        } else {
+            // Cuidador só confirma
+            val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            builder.setTitle("Parar Rastreamento")
+                .setMessage("Deseja parar de rastrear o paciente?")
+                .setPositiveButton("Sim") { _, _ ->
+                    stopTracking()
+                }
+                .setNegativeButton("Não", null)
+                .show()
+        }
+    }
+    
+    private fun showStopSharingCodeDialog() {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        val input = android.widget.EditText(requireContext())
+        input.hint = "Digite SIM"
+        
+        builder.setTitle("Parar Compartilhamento")
+            .setMessage("Escreva a palavra SIM para parar o compartilhamento")
+            .setView(input)
+            .setPositiveButton("Confirmar") { _, _ ->
+                val enteredText = input.text.toString().trim().uppercase()
+                if (enteredText == "SIM") {
+                    stopTracking()
+                    Toast.makeText(context, "Compartilhamento parado", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Você deve escrever SIM para parar. Compartilhamento continua ativo.", Toast.LENGTH_LONG).show()
                 }
             }
             .setNegativeButton("Cancelar", null)
@@ -185,6 +244,7 @@ class RastreioFragment : Fragment() {
         currentTrackingCode = key
         isTracking = true
         binding.btnPaciente.text = getString(R.string.stop_sharing)
+        binding.btnStopTracking.visibility = android.view.View.VISIBLE
         Toast.makeText(context, "Compartilhando localização: $key", Toast.LENGTH_SHORT).show()
         
         startLocationSharing()
@@ -348,6 +408,9 @@ class RastreioFragment : Fragment() {
             stopAlarm()
         }
         
+        // Esconde botão de parar rastreamento
+        binding.btnStopTracking.visibility = android.view.View.GONE
+        
         isTracking = false
     }
     
@@ -418,6 +481,9 @@ class RastreioFragment : Fragment() {
         
         // Inicia rastreamento da própria localização do cuidador
         startCuidadorLocationTracking()
+        
+        // Mostra botão para parar rastreamento
+        binding.btnStopTracking.visibility = android.view.View.VISIBLE
         
         // Remove listener anterior se existir
         locationListener?.let { 

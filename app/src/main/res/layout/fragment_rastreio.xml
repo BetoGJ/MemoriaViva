@@ -49,6 +49,17 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="8dp"
                 android:backgroundTint="#F44336"/>
+                
+            <Button
+                android:id="@+id/btnStopTracking"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Parar Rastreamento"
+                android:textSize="16sp"
+                android:visibility="gone"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#FF5722"/>
         </LinearLayout>
 
         <Button
